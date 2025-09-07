@@ -1,0 +1,1434 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administración - NIVOR</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-dark: #0d0d0d;
+            --secondary-dark: #1a1a1a;
+            --card-dark: #1e1e1e;
+            --primary-cyan: #06b6d4;
+            --light-cyan: #67e8f9;
+            --dark-cyan: #0891b2;
+            --accent-yellow: #FFD700;
+        }
+        
+        body {
+            background-color: var(--primary-dark);
+            color: #d4d4d4;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-x: hidden; /* Evita el scroll horizontal */
+        }
+        
+        .tab-btn {
+            @apply py-3 px-6 rounded-t-lg font-bold transition-all duration-300;
+            background-color: var(--secondary-dark);
+            color: #9ca3af;
+        }
+        
+        .tab-btn.active {
+            @apply bg-card-dark;
+            color: var(--primary-cyan);
+            border-top: 3px solid var(--primary-cyan);
+        }
+        
+        .tab-content {
+            @apply p-6 rounded-b-lg rounded-tr-lg;
+            background-color: var(--card-dark);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+        }
+        
+        .kpi-card {
+            @apply p-6 rounded-xl;
+            background: linear-gradient(145deg, var(--secondary-dark), var(--card-dark));
+            box-shadow: 0 4px 15px rgba(6, 182, 212, 0.15);
+            border: 1px solid rgba(6, 182, 212, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .kpi-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(6, 182, 212, 0.25);
+        }
+        
+        .btn-primary {
+            @apply py-2 px-6 rounded-lg font-bold transition-all duration-300;
+            background-color: var(--primary-cyan);
+            color: var(--primary-dark);
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--dark-cyan);
+            transform: translateY(-2px);
+        }
+        
+        .btn-danger {
+            @apply py-2 px-6 rounded-lg font-bold transition-all duration-300;
+            background-color: #ef4444;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background-color: #dc2626;
+            transform: translateY(-2px);
+        }
+        
+        .service-form-container, .modal-container {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 18px rgba(6, 182, 212, 0.2);
+        }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--primary-cyan);
+            text-shadow: 0 0 10px rgba(6, 182, 212, 0.4);
+        }
+        
+        input, textarea, select {
+            @apply w-full mt-1 p-3 rounded-lg;
+            background-color: rgba(26, 26, 26, 0.8);
+            border: 1px solid rgba(6, 182, 212, 0.3);
+            color: white;
+            transition: all 0.3s ease;
+        }
+        
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: var(--primary-cyan);
+            box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.2);
+        }
+        
+        table {
+            border-collapse: separate;
+            border-spacing: 0;
+            width: 100%;
+        }
+        
+        th {
+            @apply px-6 py-4 text-left text-xs font-medium uppercase tracking-wider;
+            background-color: rgba(6, 182, 212, 0.1);
+            color: var(--light-cyan);
+        }
+        
+        td {
+            @apply px-6 py-4 whitespace-nowrap;
+            border-bottom: 1px solid rgba(6, 182, 212, 0.1);
+        }
+        
+        tr:hover {
+            background-color: rgba(6, 182, 212, 0.05);
+        }
+        
+        .badge {
+            @apply px-3 py-1 rounded-full text-xs font-bold;
+        }
+        
+        .badge-pending {
+            background-color: rgba(234, 179, 8, 0.2);
+            color: #fbbf24;
+        }
+        
+        .badge-in-progress {
+            background-color: rgba(6, 182, 212, 0.2);
+            color: var(--primary-cyan);
+        }
+        
+        .badge-completed {
+            background-color: rgba(34, 197, 94, 0.2);
+            color: #4ade80;
+        }
+        
+        .badge-paid {
+            background-color: rgba(34, 197, 94, 0.2);
+            color: #4ade80;
+        }
+        
+        .sidebar {
+            width: 280px;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            background: linear-gradient(to bottom, var(--secondary-dark), var(--primary-dark));
+            box-shadow: 4px 0 15px rgba(0, 0, 0, 0.2);
+            z-index: 10;
+            overflow-y: auto;
+        }
+        
+        .main-content {
+            margin-left: 280px;
+            padding: 2rem;
+            width: calc(100% - 280px);
+        }
+        
+        .modal {
+            @apply fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-70 backdrop-blur-sm;
+            transition: all 0.3s ease;
+        }
+        
+        .modal-content {
+            @apply bg-gray-900 rounded-xl p-8 shadow-xl;
+            width: 90%;
+            max-width: 600px;
+        }
+        
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 220px;
+            }
+            
+            .main-content {
+                margin-left: 220px;
+                width: calc(100% - 220px);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+            
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex">
+    <div class="sidebar">
+        <div class="p-6 border-b border-cyan-900">
+            <h1 class="text-2xl font-bold text-cyan-400 flex items-center">
+                <i class="fas fa-spa mr-2"></i> NIVOR
+            </h1>
+            <p class="text-sm text-cyan-300 mt-1">Panel de Administración</p>
+        </div>
+        
+        <div class="p-4">
+            <div class="text-xs uppercase text-cyan-500 tracking-wider mb-3 px-3">Navegación Principal</div>
+            <nav class="space-y-1">
+                <a href="#" class="nav-link flex items-center px-4 py-3 rounded-lg text-cyan-400 bg-cyan-900 bg-opacity-20" data-tab="dashboard">
+                    <i class="fas fa-tachometer-alt mr-3"></i>
+                    Dashboard
+                </a>
+                <a href="#users" class="nav-link flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-cyan-900 hover:bg-opacity-20 hover:text-cyan-400" data-tab="users">
+                    <i class="fas fa-users mr-3"></i>
+                    Usuarios
+                </a>
+                <a href="#services" class="nav-link flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-cyan-900 hover:bg-opacity-20 hover:text-cyan-400" data-tab="services">
+                    <i class="fas fa-concierge-bell mr-3"></i>
+                    Servicios
+                </a>
+                <a href="#orders" class="nav-link flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-cyan-900 hover:bg-opacity-20 hover:text-cyan-400" data-tab="orders">
+                    <i class="fas fa-clipboard-list mr-3"></i>
+                    Órdenes
+                </a>
+                 <a href="#payments" class="nav-link flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-cyan-900 hover:bg-opacity-20 hover:text-cyan-400" data-tab="payments">
+                    <i class="fas fa-dollar-sign mr-3"></i>
+                    Pagos
+                </a>
+                <a href="#reviews" class="nav-link flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-cyan-900 hover:bg-opacity-20 hover:text-cyan-400" data-tab="reviews">
+                    <i class="fas fa-star mr-3"></i>
+                    Reseñas
+                </a>
+            </nav>
+            
+            <div class="mt-8 pt-6 border-t border-cyan-900">
+                <div class="text-xs uppercase text-cyan-500 tracking-wider mb-3 px-3">Configuración</div>
+                <nav class="space-y-1">
+                    <a href="#" class="flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-cyan-900 hover:bg-opacity-20 hover:text-cyan-400">
+                        <i class="fas fa-cog mr-3"></i>
+                        Configuración
+                    </a>
+                    <a href="#" id="logout" class="flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-cyan-900 hover:bg-opacity-20 hover:text-cyan-400">
+                        <i class="fas fa-sign-out-alt mr-3"></i>
+                        Cerrar Sesión
+                    </a>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="flex justify-between items-center mb-8">
+            <div>
+                <h2 class="text-2xl font-bold text-cyan-400">Panel de Administración</h2>
+                <p class="text-cyan-300">Bienvenido de nuevo, Administrador</p>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div class="relative">
+                    <input type="text" placeholder="Buscar..." class="pl-10 pr-4 py-2 rounded-full bg-gray-800 border border-cyan-800 focus:outline-none focus:ring-2 focus:ring-cyan-500">
+                    <i class="fas fa-search absolute left-3 top-3 text-cyan-500"></i>
+                </div>
+                <div class="flex items-center">
+                    <div class="mr-3 text-right">
+                        <p class="text-sm font-medium text-cyan-300">Admin User</p>
+                        <p class="text-xs text-cyan-600">Administrador</p>
+                    </div>
+                    <div class="h-10 w-10 rounded-full bg-cyan-700 flex items-center justify-center">
+                        <i class="fas fa-user text-cyan-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="kpi-card">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-gray-400">Usuarios Totales</p>
+                        <p id="kpi-users" class="stat-number">...</p>
+                    </div>
+                    <div class="p-3 rounded-full bg-cyan-900 bg-opacity-30 text-cyan-400">
+                        <i class="fas fa-users text-xl"></i>
+                    </div>
+                </div>
+                <p class="text-sm text-cyan-400 mt-2"><i class="fas fa-arrow-up"></i> Datos en vivo</p>
+            </div>
+            
+            <div class="kpi-card">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-gray-400">Órdenes Activas</p>
+                        <p id="kpi-active-orders" class="stat-number">...</p>
+                    </div>
+                    <div class="p-3 rounded-full bg-cyan-900 bg-opacity-30 text-cyan-400">
+                        <i class="fas fa-clipboard-list text-xl"></i>
+                    </div>
+                </div>
+                <p class="text-sm text-cyan-400 mt-2"><i class="fas fa-arrow-up"></i> Datos en vivo</p>
+            </div>
+            
+            <div class="kpi-card">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-gray-400">Ingresos Mensuales</p>
+                        <p id="kpi-monthly-revenue" class="stat-number">...</p>
+                    </div>
+                    <div class="p-3 rounded-full bg-cyan-900 bg-opacity-30 text-cyan-400">
+                        <i class="fas fa-dollar-sign text-xl"></i>
+                    </div>
+                </div>
+                <p class="text-sm text-cyan-400 mt-2"><i class="fas fa-arrow-up"></i> Datos en vivo</p>
+            </div>
+            
+            <div class="kpi-card">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-gray-400">Calificación Promedio</p>
+                        <p id="kpi-average-rating" class="stat-number">...</p>
+                    </div>
+                    <div class="p-3 rounded-full bg-cyan-900 bg-opacity-30 text-cyan-400">
+                        <i class="fas fa-star text-xl"></i>
+                    </div>
+                </div>
+                <p class="text-sm text-cyan-400 mt-2"><i class="fas fa-arrow-up"></i> Datos en vivo</p>
+            </div>
+        </div>
+
+        <div class="flex space-x-1 mb-6 bg-gray-800 p-1 rounded-lg">
+            <button id="tab-dashboard" class="tab-btn active" data-tab="dashboard">
+                <i class="fas fa-tachometer-alt mr-2"></i>Dashboard
+            </button>
+            <button id="tab-users" class="tab-btn" data-tab="users">
+                <i class="fas fa-users mr-2"></i>Usuarios
+            </button>
+            <button id="tab-services" class="tab-btn" data-tab="services">
+                <i class="fas fa-concierge-bell mr-2"></i>Servicios
+            </button>
+            <button id="tab-orders" class="tab-btn" data-tab="orders">
+                <i class="fas fa-clipboard-list mr-2"></i>Órdenes
+            </button>
+            <button id="tab-payments" class="tab-btn" data-tab="payments">
+                <i class="fas fa-dollar-sign mr-2"></i>Pagos
+            </button>
+            <button id="tab-reviews" class="tab-btn" data-tab="reviews">
+                <i class="fas fa-star mr-2"></i>Reseñas
+            </button>
+        </div>
+
+        <div id="content-container" class="rounded-lg">
+            <div id="dashboard-tab" class="tab-content">
+                <h2 class="text-2xl font-bold text-cyan-400 mb-6"><i class="fas fa-tachometer-alt mr-2"></i>Resumen General</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-gray-800 rounded-xl p-6 shadow-md card-hover">
+                        <h3 class="text-xl font-bold text-cyan-400 mb-4">Ingresos por Mes</h3>
+                        <canvas id="monthly-revenue-chart"></canvas>
+                    </div>
+                    <div class="bg-gray-800 rounded-xl p-6 shadow-md card-hover">
+                        <h3 class="text-xl font-bold text-cyan-400 mb-4">Órdenes por Estado</h3>
+                        <canvas id="orders-status-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="users-tab" class="tab-content hidden">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-cyan-400">
+                        <i class="fas fa-users mr-2"></i>Gestión de Usuarios
+                    </h2>
+                    <button class="btn-primary">
+                        <i class="fas fa-plus mr-2"></i>Nuevo Usuario
+                    </button>
+                </div>
+                
+                <div class="overflow-x-auto rounded-lg">
+                    <table class="min-w-full">
+                        <thead>
+                            <tr>
+                                <th class="px-6 py-4 text-left">Nombre</th>
+                                <th class="px-6 py-4 text-left">Correo</th>
+                                <th class="px-6 py-4 text-left">Rol</th>
+                                <th class="px-6 py-4 text-left">Estado</th>
+                                <th class="px-6 py-4 text-left">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="users-table-body" class="divide-y divide-cyan-900">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div id="services-tab" class="tab-content hidden">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-cyan-400">
+                        <i class="fas fa-concierge-bell mr-2"></i>Gestión de Servicios
+                    </h2>
+                    <button id="create-service-btn" class="btn-primary">
+                        <i class="fas fa-plus mr-2"></i>Crear Nuevo Servicio
+                    </button>
+                </div>
+                
+                <div id="service-form-container" class="service-form-container hidden p-6 bg-gray-800 rounded-lg mb-6">
+                    <h3 id="form-title" class="text-xl font-bold text-cyan-400 mb-4"></h3>
+                    <form id="service-form" class="space-y-4">
+                        <div>
+                            <label for="service-name" class="block text-cyan-300 mb-2">Nombre del Servicio</label>
+                            <input type="text" id="service-name" required class="w-full mt-1 p-3 rounded-lg">
+                        </div>
+                        <div>
+                            <label for="service-description" class="block text-cyan-300 mb-2">Descripción</label>
+                            <textarea id="service-description" rows="4" required class="w-full mt-1 p-3 rounded-lg"></textarea>
+                        </div>
+                        <div>
+                            <label for="service-price" class="block text-cyan-300 mb-2">Precio Base</label>
+                            <input type="number" step="0.01" id="service-price" required class="w-full mt-1 p-3 rounded-lg">
+                        </div>
+                        <div class="flex space-x-3">
+                            <button type="submit" class="btn-primary">
+                                <i class="fas fa-save mr-2"></i>Guardar Servicio
+                            </button>
+                            <button type="button" id="cancel-form-btn" class="btn-danger">
+                                <i class="fas fa-times mr-2"></i>Cancelar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div id="services-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    </div>
+            </div>
+
+            <div id="orders-tab" class="tab-content hidden">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-cyan-400">
+                        <i class="fas fa-clipboard-list mr-2"></i>Gestión de Órdenes
+                    </h2>
+                    <div class="flex space-x-3">
+                        <select id="order-status-filter" class="w-40 bg-gray-800 border-cyan-800 text-cyan-300">
+                            <option value="all">Todas las órdenes</option>
+                            <option value="pendiente">Pendientes</option>
+                            <option value="en_curso">En curso</option>
+                            <option value="completado">Completadas</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="orders-list" class="space-y-4">
+                    </div>
+            </div>
+
+            <div id="payments-tab" class="tab-content hidden">
+                <h2 class="text-2xl font-bold text-cyan-400 mb-6">
+                    <i class="fas fa-dollar-sign mr-2"></i>Registro de Pagos
+                </h2>
+                <div id="payments-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                </div>
+            </div>
+
+            <div id="reviews-tab" class="tab-content hidden">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-cyan-400">
+                        <i class="fas fa-star mr-2"></i>Reseñas de Clientes
+                    </h2>
+                    <div class="text-cyan-300">
+                        <i class="fas fa-star text-yellow-400 mr-1"></i> <span id="average-rating">4.8</span> promedio
+                    </div>
+                </div>
+
+                <div id="reviews-list" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    </div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="user-edit-modal" class="modal hidden">
+        <div class="modal-content">
+            <h3 class="text-xl font-bold text-cyan-400 mb-4">Editar Usuario</h3>
+            <form id="user-edit-form" class="space-y-4">
+                <input type="hidden" id="user-edit-id">
+                <div>
+                    <label for="user-edit-name" class="block text-cyan-300 mb-2">Nombre</label>
+                    <input type="text" id="user-edit-name" required class="w-full mt-1 p-3 rounded-lg">
+                </div>
+                <div>
+                    <label for="user-edit-email" class="block text-cyan-300 mb-2">Correo</label>
+                    <input type="email" id="user-edit-email" required class="w-full mt-1 p-3 rounded-lg">
+                </div>
+                <div>
+                    <label for="user-edit-rol" class="block text-cyan-300 mb-2">Rol</label>
+                    <select id="user-edit-rol" class="w-full mt-1 p-3 rounded-lg">
+                        <option value="user">Usuario</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </div>
+                <div class="flex space-x-3 justify-end">
+                    <button type="button" id="user-edit-cancel-btn" class="btn-danger">Cancelar</button>
+                    <button type="submit" class="btn-primary">Guardar Cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div id="order-edit-modal" class="modal hidden">
+        <div class="modal-content">
+            <h3 class="text-xl font-bold text-cyan-400 mb-4">Editar Orden</h3>
+            <form id="order-edit-form" class="space-y-4">
+                <input type="hidden" id="order-edit-id">
+                <div>
+                    <label for="order-edit-clienteId" class="block text-cyan-300 mb-2">ID Cliente</label>
+                    <input type="text" id="order-edit-clienteId" required class="w-full mt-1 p-3 rounded-lg">
+                </div>
+                <div>
+                    <label for="order-edit-empleadoId" class="block text-cyan-300 mb-2">ID Empleado</label>
+                    <input type="text" id="order-edit-empleadoId" required class="w-full mt-1 p-3 rounded-lg">
+                </div>
+                <div>
+                    <label for="order-edit-serviceId" class="block text-cyan-300 mb-2">ID Servicio</label>
+                    <input type="text" id="order-edit-serviceId" required class="w-full mt-1 p-3 rounded-lg">
+                </div>
+                <div>
+                    <label for="order-edit-monto" class="block text-cyan-300 mb-2">Monto</label>
+                    <input type="number" step="0.01" id="order-edit-monto" required class="w-full mt-1 p-3 rounded-lg">
+                </div>
+                <div>
+                    <label for="order-edit-direccion" class="block text-cyan-300 mb-2">Dirección</label>
+                    <textarea id="order-edit-direccion" rows="2" required class="w-full mt-1 p-3 rounded-lg"></textarea>
+                </div>
+                <div>
+                    <label for="order-edit-detalles" class="block text-cyan-300 mb-2">Detalles</label>
+                    <textarea id="order-edit-detalles" rows="2" required class="w-full mt-1 p-3 rounded-lg"></textarea>
+                </div>
+                <div>
+                    <label for="order-edit-status" class="block text-cyan-300 mb-2">Estado</label>
+                    <select id="order-edit-status" class="w-full mt-1 p-3 rounded-lg">
+                        <option value="pendiente">Pendiente</option>
+                        <option value="en_curso">En curso</option>
+                        <option value="completado">Completado</option>
+                    </select>
+                </div>
+                <div class="flex space-x-3 justify-end">
+                    <button type="button" id="order-edit-cancel-btn" class="btn-danger">Cancelar</button>
+                    <button type="submit" class="btn-primary">Guardar Cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
+        import { getFirestore, collection, getDocs, doc, deleteDoc, addDoc, updateDoc, where, query, getDoc } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+        import { serverTimestamp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+        
+        // Configuración de Firebase - ¡Asegúrate de que estos valores sean correctos!
+        const firebaseConfig = {
+            apiKey: "AIzaSyBL5ki_UCWAAQVCw8haAU8gN_9-kzUpRKE",
+            authDomain: "nivor-a-domicilio.firebaseapp.com",
+            projectId: "nivor-a-domicilio",
+            storageBucket: "nivor-a-domicilio.firebasestorage.app",
+            messagingSenderId: "807776798823",
+            appId: "1:807776798823:web:2f662987e74f91da1cacc2"
+        };
+    
+        // Inicialización de Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+    
+        // Variables de estado para la edición
+        let editingServiceId = null;
+
+        // Referencias a elementos del DOM para eficiencia
+        const usersTableBody = document.getElementById('users-table-body');
+        const servicesList = document.getElementById('services-list');
+        const ordersList = document.getElementById('orders-list');
+        const paymentsList = document.getElementById('payments-list');
+        const reviewsList = document.getElementById('reviews-list');
+        const serviceFormContainer = document.getElementById('service-form-container');
+        const serviceForm = document.getElementById('service-form');
+        const formTitle = document.getElementById('form-title');
+        const serviceNameInput = document.getElementById('service-name');
+        const serviceDescriptionTextarea = document.getElementById('service-description');
+        const servicePriceInput = document.getElementById('service-price');
+        
+        // Referencias a los modales y sus elementos
+        const userEditModal = document.getElementById('user-edit-modal');
+        const userEditForm = document.getElementById('user-edit-form');
+        const userEditIdInput = document.getElementById('user-edit-id');
+        const userEditNameInput = document.getElementById('user-edit-name');
+        const userEditEmailInput = document.getElementById('user-edit-email');
+        const userEditRolSelect = document.getElementById('user-edit-rol');
+        const userEditCancelBtn = document.getElementById('user-edit-cancel-btn');
+        
+        const orderEditModal = document.getElementById('order-edit-modal');
+        const orderEditForm = document.getElementById('order-edit-form');
+        const orderEditIdInput = document.getElementById('order-edit-id');
+        const orderEditClienteIdInput = document.getElementById('order-edit-clienteId');
+        const orderEditEmpleadoIdInput = document.getElementById('order-edit-empleadoId');
+        const orderEditServiceIdInput = document.getElementById('order-edit-serviceId');
+        const orderEditMontoInput = document.getElementById('order-edit-monto');
+        const orderEditDireccionTextarea = document.getElementById('order-edit-direccion');
+        const orderEditDetallesTextarea = document.getElementById('order-edit-detalles');
+        const orderEditStatusSelect = document.getElementById('order-edit-status');
+        const orderEditCancelBtn = document.getElementById('order-edit-cancel-btn');
+
+        // Referencias a los KPIs
+        const kpiUsers = document.getElementById('kpi-users');
+        const kpiActiveOrders = document.getElementById('kpi-active-orders');
+        const kpiMonthlyRevenue = document.getElementById('kpi-monthly-revenue');
+        const kpiAverageRating = document.getElementById('kpi-average-rating');
+
+        /**
+         * Manejo de la Autenticación del Administrador
+         */
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                console.log("No hay usuario autenticado. Redirigiendo a login.");
+                window.location.href = 'login.html';
+                return;
+            }
+            const userDocRef = doc(db, 'users', user.uid);
+            try {
+                const userDoc = await getDoc(userDocRef);
+                if (!userDoc.exists() || userDoc.data().rol !== 'admin') {
+                    console.log("Usuario no es admin o no existe el documento. Acceso denegado.");
+                    alert('Acceso denegado. Solo para administradores.');
+                    window.location.href = 'login.html';
+                } else {
+                    console.log("Acceso de administrador verificado. Cargando datos.");
+                    await fetchKPIs();
+                    await fetchUsers();
+                    await fetchServices();
+                    await fetchOrders();
+                    await fetchPayments();
+                    await fetchReviews();
+                }
+            } catch (error) {
+                console.error("Error al verificar usuario:", error);
+                alert('Ocurrió un error al verificar su acceso. Por favor, intente de nuevo.');
+                window.location.href = 'login.html';
+            }
+        });
+    
+        /**
+         * Manejo del cierre de sesión
+         */
+        document.getElementById('logout').addEventListener('click', () => {
+            signOut(auth).then(() => {
+                console.log("Cierre de sesión exitoso. Redirigiendo a login.");
+                window.location.href = 'login.html';
+            }).catch(error => {
+                console.error("Error al cerrar sesión:", error);
+                alert("Ocurrió un error al cerrar la sesión.");
+            });
+        });
+
+        /**
+         * Lógica para cargar los KPIs
+         */
+        async function fetchKPIs() {
+            try {
+                // Usuarios Totales
+                const usersSnapshot = await getDocs(collection(db, 'users'));
+                kpiUsers.textContent = usersSnapshot.size;
+
+                // Órdenes Activas
+                const activeOrdersQuery = query(collection(db, 'orders'), where('status', 'in', ['pendiente', 'en_curso']));
+                const activeOrdersSnapshot = await getDocs(activeOrdersQuery);
+                kpiActiveOrders.textContent = activeOrdersSnapshot.size;
+
+                // Ingresos Mensuales (de órdenes completadas este mes)
+                const today = new Date();
+                const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+                const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+                
+                const completedOrdersQuery = query(
+                    collection(db, 'orders'),
+                    where('status', '==', 'completado')
+                );
+                const completedOrdersSnapshot = await getDocs(completedOrdersQuery);
+                
+                let monthlyRevenue = 0;
+                completedOrdersSnapshot.forEach(docSnap => {
+                    const order = docSnap.data();
+                    if (order.fecha) {
+                        const orderDate = order.fecha.toDate();
+                        if (orderDate >= firstDayOfMonth && orderDate <= lastDayOfMonth) {
+                            monthlyRevenue += order.monto || 0;
+                        }
+                    }
+                });
+                kpiMonthlyRevenue.textContent = `$${monthlyRevenue.toFixed(2)}`;
+
+                // Calificación Promedio
+                const reviewsSnapshot = await getDocs(collection(db, 'reviews'));
+                let totalRating = 0;
+                let reviewCount = 0;
+                reviewsSnapshot.forEach(docSnap => {
+                    const review = docSnap.data();
+                    totalRating += review.rating || 0;
+                    reviewCount++;
+                });
+                const averageRating = reviewCount > 0 ? (totalRating / reviewCount) : 0;
+                kpiAverageRating.textContent = averageRating.toFixed(1);
+
+            } catch (error) {
+                console.error("Error al cargar KPIs:", error);
+                // Si hay un error, mostrar un mensaje de error o dejar los puntos suspensivos
+            }
+        }
+    
+        /**
+         * Lógica para cambiar de pestaña en el panel
+         */
+        const tabButtons = document.querySelectorAll('.tab-btn');
+        const tabContents = document.querySelectorAll('.tab-content');
+    
+        tabButtons.forEach(button => {
+            button.addEventListener('click', async () => {
+                const tabId = button.dataset.tab;
+                
+                // Remover clase activa de todos los botones y ocultar contenido
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                tabContents.forEach(content => content.classList.add('hidden'));
+    
+                // Añadir clase activa al botón presionado y mostrar el contenido
+                button.classList.add('active');
+                document.getElementById(`${tabId}-tab`).classList.remove('hidden');
+    
+                // Recargar datos para la pestaña activa
+                switch(tabId) {
+                    case 'users':
+                        await fetchUsers();
+                        break;
+                    case 'services':
+                        await fetchServices();
+                        break;
+                    case 'orders':
+                        await fetchOrders();
+                        break;
+                    case 'payments':
+                        await fetchPayments();
+                        break;
+                    case 'reviews':
+                        await fetchReviews();
+                        break;
+                    case 'dashboard':
+                        await fetchKPIs();
+                        break;
+                }
+            });
+        });
+
+        /**
+         * Sincronizar navegación del sidebar con los botones de tab
+         */
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const tabId = link.dataset.tab;
+                if (tabId) {
+                    const tabButton = document.getElementById(`tab-${tabId}`);
+                    if (tabButton) {
+                        tabButton.click();
+                    }
+                }
+            });
+        });
+        
+        /**
+         * Lógica de Modales
+         */
+        function openModal(modal) {
+            modal.classList.remove('hidden');
+        }
+
+        function closeModal(modal) {
+            modal.classList.add('hidden');
+        }
+
+        userEditCancelBtn.addEventListener('click', () => closeModal(userEditModal));
+        orderEditCancelBtn.addEventListener('click', () => closeModal(orderEditModal));
+
+
+        // ------------------- CRUD Functions for Each Tab -------------------
+
+        /**
+         * CRUD para la Pestaña de Usuarios
+         */
+        async function fetchUsers() {
+            usersTableBody.innerHTML = '<tr><td colspan="5" class="text-center py-8 text-cyan-500"><i class="fas fa-spinner fa-spin mr-2"></i>Cargando usuarios...</td></tr>';
+            
+            try {
+                const snapshot = await getDocs(collection(db, 'users'));
+                usersTableBody.innerHTML = '';
+                
+                if (snapshot.empty) {
+                    usersTableBody.innerHTML = '<tr><td colspan="5" class="text-center py-8 text-cyan-500">No hay usuarios registrados.</td></tr>';
+                    return;
+                }
+                
+                let htmlContent = '';
+                snapshot.forEach(docSnap => {
+                    const user = docSnap.data();
+                    const statusBadge = user.activo ? 'badge-completed' : 'badge-pending';
+                    const statusText = user.activo ? 'Activo' : 'Inactivo';
+
+                    htmlContent += `
+                        <tr class="hover:bg-cyan-900 hover:bg-opacity-10 transition-colors duration-200">
+                            <td class="px-6 py-4">
+                                <div class="flex items-center">
+                                    <div class="h-10 w-10 rounded-full bg-cyan-800 flex items-center justify-center mr-3">
+                                        <i class="fas fa-user text-cyan-400"></i>
+                                    </div>
+                                    <div>
+                                        <p class="font-medium text-cyan-300">${user.nombre || 'Sin nombre'}</p>
+                                        <p class="text-sm text-cyan-600">ID: ${docSnap.id.substring(0, 6)}...</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4">${user.correo || 'No especificado'}</td>
+                            <td class="px-6 py-4">
+                                <span class="badge ${user.rol === 'admin' ? 'badge-in-progress' : 'badge-pending'}">${user.rol || 'user'}</span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="badge ${statusBadge}">${statusText}</span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <button class="text-cyan-400 hover:text-cyan-300 mr-3 edit-user-btn" data-uid="${docSnap.id}" title="Editar">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="text-red-500 hover:text-red-400 delete-user-btn" data-uid="${docSnap.id}" title="Eliminar">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                });
+                usersTableBody.innerHTML = htmlContent;
+                
+                // Asignar event listeners después de que el contenido es renderizado
+                document.querySelectorAll('.delete-user-btn').forEach(btn => {
+                    btn.addEventListener('click', handleDeleteUser);
+                });
+                document.querySelectorAll('.edit-user-btn').forEach(btn => {
+                    btn.addEventListener('click', handleEditUser);
+                });
+            } catch (error) {
+                console.error("Error al obtener usuarios:", error);
+                usersTableBody.innerHTML = '<tr><td colspan="5" class="text-center py-8 text-red-500"><i class="fas fa-exclamation-triangle mr-2"></i>Error al cargar usuarios</td></tr>';
+            }
+        }
+        
+        async function handleDeleteUser(e) {
+            const uid = e.currentTarget.dataset.uid;
+            if (confirm('¿Estás seguro de eliminar este usuario? Esta acción es irreversible.')) {
+                try {
+                    await deleteDoc(doc(db, 'users', uid));
+                    alert('Usuario eliminado correctamente.');
+                    await fetchUsers(); // Recargar la lista
+                } catch (error) {
+                    console.error("Error al eliminar usuario:", error);
+                    alert('Error al eliminar el usuario.');
+                }
+            }
+        }
+        
+        async function handleEditUser(e) {
+            const uid = e.currentTarget.dataset.uid;
+            try {
+                const userDoc = await getDoc(doc(db, 'users', uid));
+                if (userDoc.exists()) {
+                    const userData = userDoc.data();
+                    userEditIdInput.value = uid;
+                    userEditNameInput.value = userData.nombre || '';
+                    userEditEmailInput.value = userData.correo || '';
+                    userEditRolSelect.value = userData.rol || 'user';
+                    openModal(userEditModal);
+                } else {
+                    alert('Usuario no encontrado.');
+                }
+            } catch (error) {
+                console.error("Error al cargar datos del usuario para edición:", error);
+                alert('Ocurrió un error al cargar los datos del usuario.');
+            }
+        }
+        
+        userEditForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const uid = userEditIdInput.value;
+            const updatedData = {
+                nombre: userEditNameInput.value,
+                correo: userEditEmailInput.value,
+                rol: userEditRolSelect.value
+            };
+            
+            try {
+                await updateDoc(doc(db, 'users', uid), updatedData);
+                alert('Usuario actualizado correctamente.');
+                closeModal(userEditModal);
+                await fetchUsers(); // Recargar la lista
+            } catch (error) {
+                console.error("Error al actualizar usuario:", error);
+                alert('Ocurrió un error al guardar los cambios.');
+            }
+        });
+
+        /**
+         * CRUD para la Pestaña de Servicios
+         */
+        function showServiceForm(isEditing = false) {
+            serviceFormContainer.classList.remove('hidden');
+            formTitle.textContent = isEditing ? 'Editar Servicio' : 'Crear Nuevo Servicio';
+        }
+
+        function hideServiceForm() {
+            serviceFormContainer.classList.add('hidden');
+            serviceForm.reset();
+            editingServiceId = null;
+        }
+
+        document.getElementById('create-service-btn').addEventListener('click', () => {
+            hideServiceForm();
+            showServiceForm();
+        });
+
+        document.getElementById('cancel-form-btn').addEventListener('click', hideServiceForm);
+
+        serviceForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const serviceData = {
+                nombre: serviceNameInput.value,
+                descripcion: serviceDescriptionTextarea.value,
+                precioBase: parseFloat(servicePriceInput.value)
+            };
+
+            try {
+                if (editingServiceId) {
+                    await updateDoc(doc(db, 'services', editingServiceId), serviceData);
+                    alert('Servicio actualizado correctamente.');
+                } else {
+                    await addDoc(collection(db, 'services'), serviceData);
+                    alert('Servicio creado correctamente.');
+                }
+
+                hideServiceForm();
+                await fetchServices(); // Recargar la lista
+            } catch (error) {
+                console.error("Error al guardar servicio:", error);
+                alert('Error al guardar el servicio.');
+            }
+        });
+
+        async function editService(serviceId) {
+            try {
+                const serviceDoc = await getDoc(doc(db, 'services', serviceId));
+                if (serviceDoc.exists()) {
+                    const data = serviceDoc.data();
+                    serviceNameInput.value = data.nombre;
+                    serviceDescriptionTextarea.value = data.descripcion;
+                    servicePriceInput.value = data.precioBase;
+                    editingServiceId = serviceId;
+                    showServiceForm(true);
+                }
+            } catch (error) {
+                console.error("Error al cargar servicio:", error);
+                alert('Error al cargar el servicio para editar.');
+            }
+        }
+
+        async function fetchServices() {
+            servicesList.innerHTML = '<div class="col-span-3 text-center py-12 text-cyan-500"><i class="fas fa-spinner fa-spin mr-2"></i>Cargando servicios...</div>';
+            
+            try {
+                const snapshot = await getDocs(collection(db, 'services'));
+                if (snapshot.empty) {
+                    servicesList.innerHTML = '<div class="col-span-3 text-center py-12 text-cyan-500">No hay servicios disponibles.</div>';
+                    return;
+                }
+                
+                let htmlContent = '';
+                snapshot.forEach(docSnap => {
+                    const service = docSnap.data();
+                    htmlContent += `
+                        <div class="bg-gray-800 rounded-xl overflow-hidden card-hover">
+                            <div class="h-32 bg-cyan-900 bg-opacity-30 flex items-center justify-center">
+                                <i class="fas fa-concierge-bell text-4xl text-cyan-400"></i>
+                            </div>
+                            <div class="p-5">
+                                <h3 class="text-xl font-bold text-cyan-400 mb-2">${service.nombre}</h3>
+                                <p class="text-cyan-200 mb-4 line-clamp-2">${service.descripcion || 'Sin descripción'}</p>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-2xl font-bold text-cyan-300">$${service.precioBase}</span>
+                                    <div class="flex space-x-2">
+                                        <button class="update-service-btn text-cyan-400 hover:text-cyan-300" data-id="${docSnap.id}" title="Editar">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="delete-service-btn text-red-500 hover:text-red-400" data-id="${docSnap.id}" title="Eliminar">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                servicesList.innerHTML = htmlContent;
+                
+                // Asignar event listeners
+                document.querySelectorAll('.delete-service-btn').forEach(btn => {
+                    btn.addEventListener('click', async (e) => {
+                        const serviceId = e.currentTarget.dataset.id;
+                        if (confirm('¿Estás seguro de eliminar este servicio?')) {
+                            try {
+                                await deleteDoc(doc(db, 'services', serviceId));
+                                alert('Servicio eliminado correctamente.');
+                                await fetchServices();
+                            } catch (error) {
+                                console.error("Error al eliminar servicio:", error);
+                                alert('Error al eliminar el servicio.');
+                            }
+                        }
+                    });
+                });
+
+                document.querySelectorAll('.update-service-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const serviceId = e.currentTarget.dataset.id;
+                        editService(serviceId);
+                    });
+                });
+            } catch (error) {
+                console.error("Error al obtener servicios:", error);
+                servicesList.innerHTML = '<div class="col-span-3 text-center py-12 text-red-500"><i class="fas fa-exclamation-triangle mr-2"></i>Error al cargar servicios</div>';
+            }
+        }
+    
+        /**
+         * CRUD para la Pestaña de Órdenes
+         */
+        const orderStatusFilter = document.getElementById('order-status-filter');
+        orderStatusFilter.addEventListener('change', fetchOrders);
+    
+        async function fetchOrders() {
+            ordersList.innerHTML = '<div class="text-center py-12 text-cyan-500"><i class="fas fa-spinner fa-spin mr-2"></i>Cargando órdenes...</div>';
+            
+            const selectedStatus = orderStatusFilter.value;
+            let q = collection(db, 'orders');
+            if (selectedStatus !== 'all') {
+                q = query(q, where('status', '==', selectedStatus));
+            }
+
+            try {
+                const snapshot = await getDocs(q);
+                ordersList.innerHTML = '';
+                
+                if (snapshot.empty) {
+                    ordersList.innerHTML = '<div class="text-center py-12 text-cyan-500">No hay órdenes registradas.</div>';
+                    return;
+                }
+                
+                let htmlContent = '';
+                const serviceNames = new Map();
+                const clientData = new Map();
+                const employeeNames = new Map();
+
+                for (const docSnap of snapshot.docs) {
+                    const order = docSnap.data();
+                    let serviceName = 'Sin servicio';
+                    let clientName = 'Usuario anónimo';
+                    let clientAddress = 'No disponible';
+                    let employeeName = 'Sin asignar';
+
+                    if (order.serviceId) {
+                        try {
+                            if (serviceNames.has(order.serviceId)) {
+                                serviceName = serviceNames.get(order.serviceId);
+                            } else {
+                                const serviceDoc = await getDoc(doc(db, 'services', order.serviceId));
+                                if (serviceDoc.exists()) {
+                                    serviceName = serviceDoc.data().nombre;
+                                    serviceNames.set(order.serviceId, serviceName);
+                                } else {
+                                    console.warn(`Documento de servicio no encontrado para ID: ${order.serviceId}`);
+                                }
+                            }
+                        } catch (error) {
+                            console.error("Error al obtener servicio para la orden:", error);
+                        }
+                    }
+
+                    if (order.clienteId) {
+                        try {
+                            if (clientData.has(order.clienteId)) {
+                                const data = clientData.get(order.clienteId);
+                                clientName = data.nombre;
+                                clientAddress = data.direccion;
+                            } else {
+                                const userDoc = await getDoc(doc(db, 'users', order.clienteId));
+                                if (userDoc.exists()) {
+                                    const userData = userDoc.data();
+                                    clientName = userData.nombre || 'Sin nombre';
+                                    clientAddress = userData.direccion || 'No especificada';
+                                    clientData.set(order.clienteId, { nombre: clientName, direccion: clientAddress });
+                                } else {
+                                    console.warn(`Documento de cliente no encontrado para ID: ${order.clienteId}`);
+                                }
+                            }
+                        } catch (error) {
+                            console.error("Error al obtener datos del cliente para la orden:", error);
+                        }
+                    }
+
+                    if (order.empleadoId) {
+                        try {
+                            if (employeeNames.has(order.empleadoId)) {
+                                employeeName = employeeNames.get(order.empleadoId);
+                            } else {
+                                const employeeDoc = await getDoc(doc(db, 'users', order.empleadoId));
+                                if (employeeDoc.exists()) {
+                                    employeeName = employeeDoc.data().nombre || 'Sin nombre';
+                                    employeeNames.set(order.empleadoId, employeeName);
+                                } else {
+                                    console.warn(`Documento de empleado no encontrado para ID: ${order.empleadoId}`);
+                                }
+                            }
+                        } catch (error) {
+                            console.error("Error al obtener datos del empleado para la orden:", error);
+                        }
+                    }
+
+                    const statusText = order.status ? order.status.charAt(0).toUpperCase() + order.status.slice(1).replace('_', ' ') : 'N/A';
+                    const statusClass = order.status === 'completado' ? 'badge-completed' : 
+                                      order.status === 'en_curso' ? 'badge-in-progress' : 'badge-pending';
+                    const formattedDate = order.fecha ? new Date(order.fecha.seconds * 1000).toLocaleDateString() : 'N/A';
+                    
+                    htmlContent += `
+                        <div class="bg-gray-800 rounded-xl p-5 card-hover">
+                            <div class="flex justify-between items-start mb-4">
+                                <div>
+                                    <h3 class="text-lg font-bold text-cyan-400">Orden #${docSnap.id.substring(0, 8)}</h3>
+                                    <p class="text-sm text-cyan-600">Fecha: ${formattedDate}</p>
+                                </div>
+                                <span class="badge ${statusClass}">${statusText}</span>
+                            </div>
+                            
+                            <div class="grid grid-cols-2 gap-4 mb-4">
+                                <div>
+                                    <p class="text-sm text-cyan-300">Cliente</p>
+                                    <p class="text-cyan-200">${clientName}</p>
+                                    <p class="text-sm text-cyan-600">${clientAddress}</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-cyan-300">Empleado</p>
+                                    <p class="text-cyan-200">${employeeName}</p>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <p class="text-sm text-cyan-300">Servicio</p>
+                                <p class="text-cyan-200">${serviceName}</p>
+                            </div>
+                            
+                            <div class="flex justify-between items-center">
+                                <span class="text-xl font-bold text-cyan-300">$${(order.monto || 0).toFixed(2)}</span>
+                                <div class="flex space-x-2">
+                                    <button class="py-1 px-3 rounded-lg bg-cyan-900 text-cyan-200 text-sm hover:bg-cyan-800 edit-order-btn" data-id="${docSnap.id}">
+                                        <i class="fas fa-edit mr-1"></i> Editar
+                                    </button>
+                                    <button class="py-1 px-3 rounded-lg bg-red-800 text-white text-sm hover:bg-red-700 delete-order-btn" data-id="${docSnap.id}">
+                                        <i class="fas fa-trash mr-1"></i> Eliminar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+                ordersList.innerHTML = htmlContent;
+                
+                document.querySelectorAll('.delete-order-btn').forEach(btn => {
+                    btn.addEventListener('click', handleDeleteOrder);
+                });
+                document.querySelectorAll('.edit-order-btn').forEach(btn => {
+                    btn.addEventListener('click', handleEditOrder);
+                });
+            } catch (error) {
+                console.error("Error al obtener órdenes:", error);
+                ordersList.innerHTML = '<div class="text-center py-12 text-red-500"><i class="fas fa-exclamation-triangle mr-2"></i>Error al cargar órdenes</div>';
+            }
+        }
+        
+        async function handleDeleteOrder(e) {
+            const orderId = e.currentTarget.dataset.id;
+            if (confirm('¿Estás seguro de eliminar esta orden? Esta acción es irreversible.')) {
+                try {
+                    await deleteDoc(doc(db, 'orders', orderId));
+                    alert('Orden eliminada correctamente.');
+                    await fetchOrders(); // Recargar la lista
+                } catch (error) {
+                    console.error("Error al eliminar orden:", error);
+                    alert('Error al eliminar la orden.');
+                }
+            }
+        }
+        
+        async function handleEditOrder(e) {
+            const orderId = e.currentTarget.dataset.id;
+            try {
+                const orderDoc = await getDoc(doc(db, 'orders', orderId));
+                if (orderDoc.exists()) {
+                    const orderData = orderDoc.data();
+                    orderEditIdInput.value = orderId;
+                    orderEditClienteIdInput.value = orderData.clienteId || '';
+                    orderEditEmpleadoIdInput.value = orderData.empleadoId || '';
+                    orderEditServiceIdInput.value = orderData.serviceId || '';
+                    orderEditMontoInput.value = orderData.monto || 0;
+                    orderEditDireccionTextarea.value = orderData.direccion || '';
+                    orderEditDetallesTextarea.value = orderData.detalles || '';
+                    orderEditStatusSelect.value = orderData.status || 'pendiente';
+                    openModal(orderEditModal);
+                } else {
+                    alert('Orden no encontrada.');
+                }
+            } catch (error) {
+                console.error("Error al cargar datos de la orden para edición:", error);
+                alert('Ocurrió un error al cargar los datos de la orden.');
+            }
+        }
+        
+        orderEditForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const orderId = orderEditIdInput.value;
+            const originalStatus = (await getDoc(doc(db, 'orders', orderId))).data().status;
+            const newStatus = orderEditStatusSelect.value;
+            const updatedData = {
+                clienteId: orderEditClienteIdInput.value,
+                empleadoId: orderEditEmpleadoIdInput.value,
+                serviceId: orderEditServiceIdInput.value,
+                monto: parseFloat(orderEditMontoInput.value),
+                direccion: orderEditDireccionTextarea.value,
+                detalles: orderEditDetallesTextarea.value,
+                status: newStatus
+            };
+            
+            try {
+                await updateDoc(doc(db, 'orders', orderId), updatedData);
+                
+                // Si el estado cambia a "completado" y no lo estaba antes, registra el pago
+                if (newStatus === 'completado' && originalStatus !== 'completado') {
+                    const paymentData = {
+                        orderId: orderId,
+                        monto: updatedData.monto,
+                        clienteId: updatedData.clienteId,
+                        empleadoId: updatedData.empleadoId,
+                        fecha: serverTimestamp() // Usa la marca de tiempo del servidor
+                    };
+                    await addDoc(collection(db, 'payments'), paymentData);
+                    alert('Orden actualizada y pago registrado correctamente.');
+                } else {
+                    alert('Orden actualizada correctamente.');
+                }
+
+                closeModal(orderEditModal);
+                await fetchOrders(); // Recargar la lista de órdenes
+                await fetchPayments(); // Recargar la lista de pagos
+                await fetchKPIs(); // Recargar los KPIs
+            } catch (error) {
+                console.error("Error al actualizar orden:", error);
+                alert('Ocurrió un error al guardar los cambios.');
+            }
+        });
+
+        /**
+         * CRUD para la Pestaña de Pagos
+         */
+        async function fetchPayments() {
+            paymentsList.innerHTML = '<div class="col-span-3 text-center py-12 text-cyan-500"><i class="fas fa-spinner fa-spin mr-2"></i>Cargando pagos...</div>';
+            
+            try {
+                const snapshot = await getDocs(collection(db, 'payments'));
+                paymentsList.innerHTML = '';
+
+                if (snapshot.empty) {
+                    paymentsList.innerHTML = '<div class="col-span-3 text-center py-12 text-cyan-500">No hay pagos registrados.</div>';
+                    return;
+                }
+
+                const clientNames = new Map();
+                const employeeNames = new Map();
+                let htmlContent = '';
+
+                for (const docSnap of snapshot.docs) {
+                    const payment = docSnap.data();
+                    let clientName = 'Anónimo';
+                    let employeeName = 'Sin asignar';
+                    
+                    // Cargar nombre del cliente
+                    if (payment.clienteId) {
+                        if (clientNames.has(payment.clienteId)) {
+                            clientName = clientNames.get(payment.clienteId);
+                        } else {
+                            const clientDoc = await getDoc(doc(db, 'users', payment.clienteId));
+                            if (clientDoc.exists()) {
+                                clientName = clientDoc.data().nombre || 'Anónimo';
+                                clientNames.set(payment.clienteId, clientName);
+                            }
+                        }
+                    }
+
+                    // Cargar nombre del empleado
+                    if (payment.empleadoId) {
+                        if (employeeNames.has(payment.empleadoId)) {
+                            employeeName = employeeNames.get(payment.empleadoId);
+                        } else {
+                            const employeeDoc = await getDoc(doc(db, 'users', payment.empleadoId));
+                            if (employeeDoc.exists()) {
+                                employeeName = employeeDoc.data().nombre || 'Sin asignar';
+                                employeeNames.set(payment.empleadoId, employeeName);
+                            }
+                        }
+                    }
+
+                    const formattedDate = payment.fecha ? new Date(payment.fecha.seconds * 1000).toLocaleDateString() : 'N/A';
+                    
+                    htmlContent += `
+                        <div class="bg-gray-800 rounded-xl p-5 card-hover flex flex-col justify-between">
+                            <div>
+                                <h3 class="text-lg font-bold text-cyan-400 mb-2">Pago de Orden #${payment.orderId.substring(0, 8)}</h3>
+                                <div class="mb-4 text-cyan-200">
+                                    <p><i class="fas fa-user-circle mr-2"></i>Cliente: ${clientName}</p>
+                                    <p><i class="fas fa-user-tie mr-2"></i>Empleado: ${employeeName}</p>
+                                    <p><i class="fas fa-calendar-alt mr-2"></i>Fecha: ${formattedDate}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-3xl font-bold text-green-400">$${(payment.monto || 0).toFixed(2)}</span>
+                                <span class="badge badge-paid">Pagado</span>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                paymentsList.innerHTML = htmlContent;
+
+            } catch (error) {
+                console.error("Error al obtener pagos:", error);
+                paymentsList.innerHTML = '<div class="col-span-3 text-center py-12 text-red-500"><i class="fas fa-exclamation-triangle mr-2"></i>Error al cargar pagos</div>';
+            }
+        }
+        
+        /**
+         * CRUD para la Pestaña de Reseñas
+         */
+        async function fetchReviews() {
+            reviewsList.innerHTML = '<div class="col-span-2 text-center py-12 text-cyan-500"><i class="fas fa-spinner fa-spin mr-2"></i>Cargando reseñas...</div>';
+            
+            try {
+                const snapshot = await getDocs(collection(db, 'reviews'));
+                reviewsList.innerHTML = '';
+
+                if (snapshot.empty) {
+                    reviewsList.innerHTML = '<div class="col-span-2 text-center py-12 text-cyan-500">No hay reseñas.</div>';
+                    return;
+                }
+
+                let totalRating = 0;
+                let reviewCount = 0;
+                let htmlContent = '';
+                snapshot.forEach(docSnap => {
+                    const review = docSnap.data();
+                    const rating = review.rating || 0;
+                    totalRating += rating;
+                    reviewCount++;
+
+                    const starsHtml = Array(5).fill(null).map((_, i) => 
+                        `<i class="fas fa-star ${i < Math.floor(rating) ? 'text-yellow-400' : 'text-gray-600'}"></i>`
+                    ).join('') + 
+                    (rating % 1 !== 0 ? `<i class="fas fa-star-half-alt text-yellow-400"></i>` : '');
+                    
+                    const formattedDate = review.date ? new Date(review.date.seconds * 1000).toLocaleDateString() : 'N/A';
+                    
+                    htmlContent += `
+                        <div class="bg-gray-800 rounded-xl p-5 card-hover">
+                            <div class="flex items-start mb-4">
+                                <div class="mr-4">
+                                    <div class="h-12 w-12 rounded-full bg-cyan-800 flex items-center justify-center">
+                                        <i class="fas fa-user text-cyan-400"></i>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h3 class="text-lg font-bold text-cyan-400">${review.userName || 'Usuario Anónimo'}</h3>
+                                    <div class="flex items-center text-yellow-400">
+                                        ${starsHtml}
+                                        <span class="ml-2 text-cyan-300">${rating.toFixed(1)}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="text-cyan-200 mb-4">${review.comment || 'Sin comentario.'}</p>
+                            <p class="text-sm text-cyan-600">Fecha: ${formattedDate}</p>
+                        </div>
+                    `;
+                });
+
+                reviewsList.innerHTML = htmlContent;
+
+                const averageRating = reviewCount > 0 ? (totalRating / reviewCount) : 0;
+                kpiAverageRating.textContent = averageRating.toFixed(1);
+
+            } catch (error) {
+                console.error("Error al obtener reseñas:", error);
+                reviewsList.innerHTML = '<div class="col-span-2 text-center py-12 text-red-500"><i class="fas fa-exclamation-triangle mr-2"></i>Error al cargar reseñas</div>';
+            }
+        }
+    </script>
+</body>
+</html>

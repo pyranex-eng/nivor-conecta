@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro - NIVOR Gold Edition</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #0d0d0d 0%, #0a2a35 100%);
+            color: #d4d4d4;
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .cyber-border {
+            position: relative;
+            border: 1px solid #22e0ff;
+            box-shadow: 0 0 15px rgba(34, 224, 255, 0.7), 
+                        0 0 25px rgba(34, 224, 255, 0.4);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .cyber-border::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            z-index: -1;
+            background: linear-gradient(45deg, #22e0ff, #0d7377, #22e0ff);
+            background-size: 400% 400%;
+            animation: gradientShift 8s ease infinite;
+            border-radius: 10px;
+        }
+        .form-container {
+            background: rgba(13, 13, 13, 0.85);
+            backdrop-filter: blur(10px);
+        }
+        .input-cyber {
+            background-color: rgba(13, 13, 13, 0.7);
+            border: 1px solid #22e0ff;
+            color: #ffffff;
+            box-shadow: 0 0 5px rgba(34, 224, 255, 0.5);
+            transition: all 0.3s ease;
+        }
+        .input-cyber:focus {
+            outline: none;
+            border-color: #0d7377;
+            box-shadow: 0 0 8px rgba(13, 115, 119, 0.8);
+        }
+        .btn-neon {
+            background: linear-gradient(90deg, #22e0ff, #0d7377);
+            color: #0d0d0d;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            border: none;
+        }
+        .btn-neon:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 15px rgba(34, 224, 255, 0.8);
+            background: linear-gradient(90deg, #0d7377, #22e0ff);
+        }
+        .logo {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        .logo-text {
+            font-size: 2.5rem;
+            font-weight: bold;
+            background: linear-gradient(90deg, #22e0ff, #0d7377);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 8px rgba(34, 224, 255, 0.5);
+        }
+        .role-hint {
+            font-size: 0.75rem;
+            color: #22e0ff;
+            margin-top: 0.25rem;
+        }
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 5px rgba(34, 224, 255, 0.5); }
+            50% { box-shadow: 0 0 15px rgba(34, 224, 255, 0.8); }
+            100% { box-shadow: 0 0 5px rgba(34, 224, 255, 0.5); }
+        }
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center py-8 px-4">
+    <div class="w-full max-w-md cyber-border">
+        <div class="p-8 rounded-lg form-container">
+            <div class="logo">
+                <h1 class="logo-text">NIVOR GOLD</h1>
+                <p class="text-cyan-300 text-sm">EDITION</p>
+            </div>
+            
+            <h2 class="text-2xl text-cyan-400 font-bold text-center mb-6">Crear Cuenta</h2>
+            
+            <form id="register-form">
+                <div class="mb-4">
+                    <label for="reg-name" class="block text-cyan-300 text-sm font-bold mb-2">Nombre Completo</label>
+                    <input type="text" id="reg-name" class="shadow appearance-none rounded w-full py-2 px-3 leading-tight input-cyber" required placeholder="Ingresa tu nombre completo">
+                </div>
+                
+                <div class="mb-4">
+                    <label for="reg-email" class="block text-cyan-300 text-sm font-bold mb-2">Correo Electrónico</label>
+                    <input type="email" id="reg-email" class="shadow appearance-none rounded w-full py-2 px-3 leading-tight input-cyber" required placeholder="ejemplo@correo.com">
+                </div>
+                
+                <div class="mb-4">
+                    <label for="reg-password" class="block text-cyan-300 text-sm font-bold mb-2">Contraseña</label>
+                    <input type="password" id="reg-password" class="shadow appearance-none rounded w-full py-2 px-3 mb-1 leading-tight input-cyber" required minlength="6" placeholder="Mínimo 6 caracteres">
+                    <p class="text-xs text-cyan-500">La contraseña debe tener al menos 6 caracteres</p>
+                </div>
+                
+                <div class="mb-4">
+                    <label for="reg-phone" class="block text-cyan-300 text-sm font-bold mb-2">Teléfono</label>
+                    <input type="tel" id="reg-phone" class="shadow appearance-none rounded w-full py-2 px-3 leading-tight input-cyber" required placeholder="+XX XXX XXX XXX">
+                </div>
+                
+                <div class="mb-4">
+                    <label for="reg-address" class="block text-cyan-300 text-sm font-bold mb-2">Dirección</label>
+                    <input type="text" id="reg-address" class="shadow appearance-none rounded w-full py-2 px-3 leading-tight input-cyber" placeholder="Calle, número, ciudad">
+                    <p class="role-hint">Solo necesario para clientes</p>
+                </div>
+                
+                <div class="mb-6">
+                    <label for="reg-role" class="block text-cyan-300 text-sm font-bold mb-2">Tipo de Cuenta</label>
+                    <select id="reg-role" class="shadow appearance-none rounded w-full py-2 px-3 leading-tight input-cyber" required>
+                        <option value="cliente">Cliente</option>
+                        <option value="empleado">Empleado</option>
+                        <option value="admin">Administrador</option>
+                    </select>
+                </div>
+                
+                <p id="error-message" class="text-red-400 text-center text-sm mb-4" style="display: none;"></p>
+                
+                <div class="flex items-center justify-between mb-6">
+                    <button type="submit" class="w-full btn-neon py-2 px-4 rounded font-bold pulse">Crear Cuenta</button>
+                </div>
+            </form>
+            
+            <div class="text-center pt-4 border-t border-cyan-800">
+                <p class="text-sm text-cyan-300">¿Ya tienes una cuenta?</p>
+                <a href="login.html" class="text-cyan-400 hover:text-cyan-300 font-bold text-sm">Iniciar Sesión</a>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBL5ki_UCWAAQVCw8haAU8gN_9-kzUpRKE",
+            authDomain: "nivor-a-domicilio.firebaseapp.com",
+            projectId: "nivor-a-domicilio",
+            storageBucket: "nivor-a-domicilio.firebasestorage.app",
+            messagingSenderId: "807776798823",
+            appId: "1:807776798823:web:2f662987e74f91da1cacc2"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Form submission handler
+        document.getElementById('register-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const name = document.getElementById('reg-name').value;
+            const email = document.getElementById('reg-email').value;
+            const password = document.getElementById('reg-password').value;
+            const phone = document.getElementById('reg-phone').value;
+            const address = document.getElementById('reg-address').value;
+            const role = document.getElementById('reg-role').value;
+            
+            const errorMessage = document.getElementById('error-message');
+            const submitBtn = document.querySelector('button[type="submit"]');
+
+            errorMessage.style.display = 'none';
+            submitBtn.textContent = 'Creando cuenta...';
+            submitBtn.disabled = true;
+
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+
+                const userData = {
+                    nombre: name,
+                    correo: email,
+                    telefono: phone,
+                    rol: role,
+                    fechaRegistro: new Date().toISOString()
+                };
+
+                if (role === 'cliente') {
+                    userData.direccion = address;
+                }
+
+                await setDoc(doc(db, 'users', user.uid), userData);
+
+                // Success message with style
+                errorMessage.textContent = '¡Cuenta creada con éxito! Redirigiendo...';
+                errorMessage.style.color = '#22e0ff';
+                errorMessage.style.display = 'block';
+                
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 1500);
+
+            } catch (error) {
+                console.error("Error al registrarse:", error);
+                errorMessage.textContent = 'Error: ' + error.message;
+                errorMessage.style.color = '#ff3860';
+                errorMessage.style.display = 'block';
+                submitBtn.textContent = 'Crear Cuenta';
+                submitBtn.disabled = false;
+            }
+        });
+
+        // Dynamic address field based on role selection
+        document.getElementById('reg-role').addEventListener('change', function() {
+            const addressField = document.getElementById('reg-address');
+            const addressLabel = addressField.previousElementSibling;
+            
+            if (this.value === 'cliente') {
+                addressField.required = true;
+                addressLabel.classList.add('text-cyan-300');
+                addressLabel.classList.remove('text-gray-500');
+            } else {
+                addressField.required = false;
+                addressLabel.classList.remove('text-cyan-300');
+                addressLabel.classList.add('text-gray-500');
+            }
+        });
+    </script>
+</body>
+</html>

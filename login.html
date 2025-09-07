@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - NIVOR Gold Edition</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #0a1929 0%, #0d0d1a 100%);
+            color: #e0f7ff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        .cyber-globe {
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background: radial-gradient(circle at center, rgba(0, 200, 255, 0.1) 0%, transparent 70%);
+            box-shadow: 0 0 100px rgba(0, 200, 255, 0.2);
+            animation: pulse 8s infinite alternate;
+        }
+        .cyber-globe:nth-child(1) {
+            top: -150px;
+            left: -150px;
+        }
+        .cyber-globe:nth-child(2) {
+            bottom: -150px;
+            right: -150px;
+        }
+        .form-container {
+            background: rgba(13, 25, 42, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid #00e0ff;
+            box-shadow: 0 0 20px rgba(0, 224, 255, 0.5),
+                        0 0 40px rgba(0, 150, 255, 0.3),
+                        inset 0 0 15px rgba(0, 224, 255, 0.3);
+            border-radius: 12px;
+            position: relative;
+            z-index: 10;
+        }
+        .input-cyber {
+            background-color: rgba(13, 25, 42, 0.7);
+            border: 1px solid #00b4d8;
+            color: #e0f7ff;
+            box-shadow: 0 0 8px rgba(0, 180, 216, 0.4);
+            transition: all 0.3s ease;
+        }
+        .input-cyber::placeholder {
+            color: #90e0ef;
+            opacity: 0.7;
+        }
+        .input-cyber:focus {
+            outline: none;
+            border-color: #00e0ff;
+            box-shadow: 0 0 12px rgba(0, 224, 255, 0.7);
+            background-color: rgba(18, 35, 56, 0.8);
+        }
+        .btn-neon {
+            background: linear-gradient(90deg, #0077b6 0%, #00b4d8 50%, #0077b6 100%);
+            color: white;
+            font-weight: bold;
+            letter-spacing: 1px;
+            text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 0 10px rgba(0, 180, 216, 0.7),
+                        0 0 20px rgba(0, 120, 255, 0.4);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-neon:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 15px rgba(0, 180, 216, 0.9),
+                        0 0 30px rgba(0, 120, 255, 0.6);
+        }
+        .btn-neon:active {
+            transform: translateY(1px);
+        }
+        .btn-neon::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -60%;
+            width: 20%;
+            height: 200%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: rotate(30deg);
+            transition: all 0.6s;
+        }
+        .btn-neon:hover::after {
+            left: 120%;
+        }
+        .cyber-line {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #00b4d8, transparent);
+            margin: 20px 0;
+        }
+        .link-cyber {
+            color: #48cae4;
+            text-shadow: 0 0 5px rgba(72, 202, 228, 0.5);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        .link-cyber:hover {
+            color: #90e0ef;
+            text-shadow: 0 0 8px rgba(144, 224, 239, 0.7);
+        }
+        .link-cyber::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 1px;
+            background: #90e0ef;
+            box-shadow: 0 0 5px #90e0ef;
+            transition: width 0.3s ease;
+        }
+        .link-cyber:hover::after {
+            width: 100%;
+        }
+        .logo-text {
+            font-family: 'Arial', sans-serif;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            text-shadow: 0 0 10px rgba(0, 224, 255, 0.7),
+                         0 0 20px rgba(0, 150, 255, 0.5);
+            color: #90e0ef;
+        }
+        .input-icon {
+            color: #00b4d8;
+            text-shadow: 0 0 5px rgba(0, 180, 216, 0.7);
+        }
+        @keyframes pulse {
+            0% {
+                opacity: 0.3;
+                transform: scale(1);
+            }
+            100% {
+                opacity: 0.6;
+                transform: scale(1.1);
+            }
+        }
+        .cyber-grid {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 180, 216, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 180, 216, 0.05) 1px, transparent 1px);
+            background-size: 30px 30px;
+            pointer-events: none;
+            z-index: 0;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center p-4">
+    <!-- Elementos de fondo -->
+    <div class="cyber-grid"></div>
+    <div class="cyber-globe"></div>
+    <div class="cyber-globe"></div>
+    
+    <!-- Contenedor principal -->
+    <div class="w-full max-w-md p-8 form-container">
+        <!-- Encabezado -->
+        <div class="text-center mb-8">
+            <h1 class="logo-text text-4xl mb-2">NIVOR</h1>
+            <p class="text-cyan-300 text-sm">GOLD EDITION</p>
+            <div class="cyber-line"></div>
+        </div>
+        
+        <!-- Formulario -->
+        <form id="login-form">
+            <!-- Campo de email -->
+            <div class="mb-6">
+                <label for="login-email" class="block text-cyan-300 text-sm font-bold mb-2">
+                    <i class="fas fa-envelope input-icon mr-2"></i>Correo Electrónico
+                </label>
+                <input type="email" id="login-email" placeholder="tu@email.com" 
+                    class="shadow appearance-none rounded w-full py-3 px-4 leading-tight input-cyber" required>
+            </div>
+            
+            <!-- Campo de contraseña -->
+            <div class="mb-6">
+                <label for="login-password" class="block text-cyan-300 text-sm font-bold mb-2">
+                    <i class="fas fa-lock input-icon mr-2"></i>Contraseña
+                </label>
+                <input type="password" id="login-password" placeholder="••••••••" 
+                    class="shadow appearance-none rounded w-full py-3 px-4 mb-3 leading-tight input-cyber" required>
+            </div>
+            
+            <!-- Recordar contraseña -->
+            <div class="mb-6 flex items-center">
+                <input type="checkbox" id="remember-me" class="mr-2">
+                <label for="remember-me" class="text-sm text-cyan-200">Recordar mi sesión</label>
+            </div>
+            
+            <!-- Mensaje de error -->
+            <p id="error-message" class="text-red-400 text-center text-sm mb-4" style="display: none;"></p>
+            
+            <!-- Botón de envío -->
+            <div class="mb-6">
+                <button type="submit" class="w-full btn-neon py-3 px-4 rounded font-bold text-lg">
+                    <i class="fas fa-sign-in-alt mr-2"></i>Acceder al Sistema
+                </button>
+            </div>
+        </form>
+        
+        <!-- Enlaces adicionales -->
+        <div class="cyber-line"></div>
+        <div class="text-center mt-4">
+            <a href="register.html" class="link-cyber font-bold text-sm">
+                <i class="fas fa-user-plus mr-1"></i>¿No tienes cuenta? Regístrate
+            </a>
+            <br>
+            <a href="forgot-password.html" class="link-cyber text-xs mt-2 inline-block">
+                <i class="fas fa-key mr-1"></i>¿Olvidaste tu contraseña?
+            </a>
+        </div>
+    </div>
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
+
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBL5ki_UCWAAQVCw8haAU8gN_9-kzUpRKE",
+            authDomain: "nivor-a-domicilio.firebaseapp.com",
+            projectId: "nivor-a-domicilio",
+            storageBucket: "nivor-a-domicilio.firebasestorage.app",
+            messagingSenderId: "807776798823",
+            appId: "1:807776798823:web:2f662987e74f91da1cacc2"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+
+        // Initialize Firebase services
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            const errorMessage = document.getElementById('error-message');
+
+            errorMessage.style.display = 'none';
+
+            // Efecto de carga en el botón
+            const submitBtn = document.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verificando...';
+            submitBtn.disabled = true;
+
+            try {
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+
+                const userDoc = await getDoc(doc(db, 'users', user.uid));
+                if (userDoc.exists()) {
+                    const userData = userDoc.data();
+                    const rol = userData.rol;
+
+                    // Redirigir según el rol
+                    switch (rol) {
+                        case 'cliente':
+                            window.location.href = 'dashboard-cliente.html';
+                            break;
+                        case 'empleado':
+                            window.location.href = 'dashboard-empleado.html';
+                            break;
+                        case 'admin':
+                            window.location.href = 'panel-admin.html';
+                            break;
+                        default:
+                            window.location.href = 'dashboard-cliente.html';
+                    }
+                } else {
+                    console.error("No se encontró el documento de usuario en Firestore.");
+                    auth.signOut();
+                    errorMessage.textContent = 'Error: Rol de usuario no encontrado. Contacte a soporte.';
+                    errorMessage.style.display = 'block';
+                }
+            } catch (error) {
+                console.error("Error al iniciar sesión:", error);
+                let errorMsg = 'Error de inicio de sesión. ';
+                
+                if (error.code === 'auth/user-not-found') {
+                    errorMsg += 'Usuario no encontrado.';
+                } else if (error.code === 'auth/wrong-password') {
+                    errorMsg += 'Contraseña incorrecta.';
+                } else {
+                    errorMsg += error.message;
+                }
+                
+                errorMessage.textContent = errorMsg;
+                errorMessage.style.display = 'block';
+            } finally {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
