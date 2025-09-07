@@ -1,0 +1,1420 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Empleado - NIVOR</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #00e6ff;
+            --primary-dark: #00a3cc;
+            --secondary: #0066ff;
+            --dark-bg: #0a0a1a;
+            --card-bg: rgba(15, 25, 45, 0.7);
+            --text-primary: #e6f7ff;
+            --text-secondary: #99e6ff;
+        }
+        
+        body {
+            background-color: var(--dark-bg);
+            color: var(--text-primary);
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(0, 102, 255, 0.13) 0%, transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(0, 230, 255, 0.13) 0%, transparent 25%);
+            min-height: 100vh;
+        }
+        
+        .cyber-card {
+            border: 1px solid var(--primary);
+            background: var(--card-bg);
+            box-shadow: 0 0 10px rgba(0, 230, 255, 0.5);
+            transition: all 0.3s ease;
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .cyber-card::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            z-index: -1;
+            background: linear-gradient(45deg, var(--primary), transparent, var(--secondary), transparent, var(--primary));
+            background-size: 400%;
+            animation: glowing 20s linear infinite;
+            border-radius: 8px;
+        }
+        
+        .cyber-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 15px var(--primary), 0 0 25px rgba(0, 102, 255, 0.5);
+        }
+        
+        @keyframes glowing {
+            0% { background-position: 0 0; }
+            50% { background-position: 400% 0; }
+            100% { background-position: 0 0; }
+        }
+        
+        .cyber-btn {
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            color: #001933;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .cyber-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: all 0.5s ease;
+        }
+        
+        .cyber-btn:hover::before {
+            left: 100%;
+        }
+        
+        .cyber-btn:hover {
+            box-shadow: 0 0 15px var(--primary);
+            transform: translateY(-2px);
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        
+        .status-pendiente {
+            background-color: rgba(255, 215, 0, 0.2);
+            color: #FFD700;
+            border: 1px solid #FFD700;
+        }
+        
+        .status-en_curso {
+            background-color: rgba(0, 230, 255, 0.2);
+            color: var(--primary);
+            border: 1px solid var(--primary);
+        }
+        
+        .status-completado {
+            background-color: rgba(0, 255, 128, 0.2);
+            color: #00ff80;
+            border: 1px solid #00ff80;
+        }
+        
+        .status-cancelado {
+            background-color: rgba(255, 0, 0, 0.2);
+            color: #ff4d4d;
+            border: 1px solid #ff4d4d;
+        }
+        
+        .nav-btn {
+            background: rgba(15, 25, 45, 0.7);
+            border: 1px solid var(--primary);
+            color: var(--text-primary);
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-btn.active {
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            color: #001933;
+            box-shadow: 0 0 10px var(--primary);
+        }
+        
+        .nav-btn:hover:not(.active) {
+            background: rgba(0, 230, 255, 0.2);
+        }
+        
+        .cyber-loader {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(0, 230, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(0, 230, 255, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(0, 230, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 230, 255, 0); }
+        }
+
+        .time-display {
+            font-size: 0.85rem;
+            color: #99e6ff;
+            background: rgba(0, 102, 255, 0.2);
+            padding: 2px 8px;
+            border-radius: 4px;
+            border: 1px solid rgba(0, 102, 255, 0.5);
+        }
+        
+        .order-card {
+            transition: all 0.3s ease;
+        }
+        
+        .order-card.accepted {
+            border-left: 4px solid #00ff80;
+        }
+        
+        .order-card.completed {
+            border-left: 4px solid #00e6ff;
+        }
+        
+        .order-card.cancelled {
+            border-left: 4px solid #ff4d4d;
+        }
+
+        .progress-bar {
+            height: 6px;
+            background: rgba(0, 230, 255, 0.2);
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+        
+        .map-preview {
+            height: 120px;
+            background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), 
+                        url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23002244"/><path d="M50 10C35 10 20 20 20 40C20 60 50 80 50 80C50 80 80 60 80 40C80 20 65 10 50 10Z" fill="none" stroke="%2300e6ff" stroke-width="2"/><circle cx="50" cy="40" r="10" fill="%2300e6ff"/></svg>');
+            background-size: cover;
+            border-radius: 6px;
+            margin: 10px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            font-weight: bold;
+        }
+        
+        .stats-card {
+            text-align: center;
+            padding: 15px;
+            border-radius: 8px;
+            background: rgba(15, 25, 45, 0.5);
+            border: 1px solid rgba(0, 230, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .stats-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 230, 255, 0.2);
+        }
+        
+        .service-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+        }
+        
+        .urgent-flash {
+            animation: urgentFlash 1s infinite alternate;
+        }
+        
+        @keyframes urgentFlash {
+            from { box-shadow: 0 0 5px rgba(255, 50, 50, 0.5); }
+            to { box-shadow: 0 0 15px rgba(255, 50, 50, 0.8), 0 0 25px rgba(255, 0, 0, 0.5); }
+        }
+        
+        .notification-panel {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            width: 350px;
+            max-height: 400px;
+            overflow-y: auto;
+            background: var(--card-bg);
+            border: 1px solid var(--primary);
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0, 230, 255, 0.5);
+            z-index: 1000;
+            display: none;
+        }
+        
+        .notification-item {
+            padding: 12px;
+            border-bottom: 1px solid rgba(0, 230, 255, 0.3);
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .notification-item:hover {
+            background: rgba(0, 230, 255, 0.1);
+        }
+        
+        .notification-item.unread {
+            background: rgba(0, 102, 255, 0.2);
+        }
+        
+        .order-timeline {
+            display: flex;
+            justify-content: space-between;
+            margin: 15px 0;
+            position: relative;
+        }
+        
+        .timeline-step {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: rgba(0, 230, 255, 0.3);
+            border: 2px solid var(--primary);
+            position: relative;
+            z-index: 2;
+        }
+        
+        .timeline-step.active {
+            background: var(--primary);
+            box-shadow: 0 0 10px var(--primary);
+        }
+        
+        .timeline-step.completed {
+            background: #00ff80;
+            border-color: #00ff80;
+        }
+        
+        .order-timeline::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: rgba(0, 230, 255, 0.3);
+            transform: translateY(-50%);
+            z-index: 1;
+        }
+        
+        .chat-bubble {
+            max-width: 70%;
+            padding: 10px 15px;
+            border-radius: 18px;
+            margin: 5px 0;
+        }
+        
+        .chat-bubble.customer {
+            background: rgba(0, 102, 255, 0.3);
+            border: 1px solid rgba(0, 102, 255, 0.5);
+            align-self: flex-start;
+        }
+        
+        .chat-bubble.employee {
+            background: rgba(0, 230, 255, 0.3);
+            border: 1px solid rgba(0, 230, 255, 0.5);
+            align-self: flex-end;
+        }
+    </style>
+</head>
+<body class="min-h-screen p-4 md:p-8">
+    <div class="container mx-auto max-w-6xl">
+        <header class="flex flex-col md:flex-row justify-between items-center mb-8 p-4 cyber-card">
+            <div class="flex items-center mb-4 md:mb-0">
+                <div class="w-12 h-12 rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 mr-4 flex items-center justify-center">
+                    <i class="fas fa-bolt text-xl text-gray-900"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl md:text-3xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">NIVOR | Dashboard Empleado</h1>
+                    <div class="flex items-center">
+                        <p id="employee-name" class="text-cyan-300 text-sm">Cargando...</p>
+                        <span class="mx-2 text-cyan-500">•</span>
+                        <span id="current-time" class="time-display text-xs">--:--:--</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex space-x-2">
+                <button id="notifications-btn" class="cyber-btn relative">
+                    <i class="fas fa-bell"></i>
+                    <span id="notification-count" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hidden">0</span>
+                </button>
+                <button id="refresh-btn" class="cyber-btn bg-gradient-to-r from-purple-500 to-indigo-500">
+                    <i class="fas fa-sync-alt mr-2"></i>Actualizar
+                </button>
+                <button id="logout" class="cyber-btn bg-gradient-to-r from-red-500 to-orange-500">
+                    <i class="fas fa-sign-out-alt mr-2"></i>Cerrar Sesión
+                </button>
+            </div>
+        </header>
+
+        <!-- Estadísticas rápidas -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            <div class="stats-card">
+                <div class="text-2xl font-bold text-cyan-300" id="quick-stats-available">0</div>
+                <div class="text-cyan-200 text-sm">Disponibles</div>
+            </div>
+            <div class="stats-card">
+                <div class="text-2xl font-bold text-cyan-300" id="quick-stats-active">0</div>
+                <div class="text-cyan-200 text-sm">En Curso</div>
+            </div>
+            <div class="stats-card">
+                <div class="text-2xl font-bold text-cyan-300" id="quick-stats-completed">0</div>
+                <div class="text-cyan-200 text-sm">Completadas</div>
+            </div>
+            <div class="stats-card">
+                <div class="text-2xl font-bold text-cyan-300" id="quick-stats-rating">0.0</div>
+                <div class="text-cyan-200 text-sm">Valoración</div>
+            </div>
+        </div>
+
+        <div class="flex flex-wrap gap-2 mb-8">
+            <button id="show-unassigned" class="nav-btn active">
+                <i class="fas fa-list-alt mr-2"></i>Órdenes Disponibles
+            </button>
+            <button id="show-assigned" class="nav-btn">
+                <i class="fas fa-clipboard-check mr-2"></i>Mis Órdenes
+            </button>
+            <button id="show-profile" class="nav-btn">
+                <i class="fas fa-user-circle mr-2"></i>Mi Perfil
+            </button>
+            <button id="show-map" class="nav-btn">
+                <i class="fas fa-map-marked-alt mr-2"></i>Vista Mapa
+            </button>
+            <button id="show-chat" class="nav-btn">
+                <i class="fas fa-comments mr-2"></i>Chat
+            </button>
+        </div>
+
+        <section id="unassigned-orders-section" class="mb-8">
+            <div class="flex flex-col md:flex-row items-start md:items-center justify-between mb-4">
+                <h2 class="text-2xl font-bold text-cyan-300 flex items-center mb-2 md:mb-0">
+                    <i class="fas fa-list-alt mr-3"></i>Órdenes Disponibles
+                </h2>
+                <div class="flex items-center">
+                    <span class="text-cyan-300 mr-2 text-sm">Filtrar por:</span>
+                    <select id="filter-orders" class="bg-gray-800 border border-cyan-500 text-cyan-300 rounded px-3 py-1 text-sm">
+                        <option value="all">Todas</option>
+                        <option value="urgent">Urgentes</option>
+                        <option value="near">Cercanas</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div id="unassigned-orders-list" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="cyber-card p-4 flex items-center justify-center h-40">
+                    <div class="text-center">
+                        <div class="cyber-loader mx-auto mb-2"></div>
+                        <p class="text-cyan-300">Cargando órdenes...</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="assigned-orders-section" class="hidden mb-8">
+            <div class="flex flex-col md:flex-row items-start md:items-center justify-between mb-4">
+                <h2 class="text-2xl font-bold text-cyan-300 flex items-center mb-2 md:mb-0">
+                    <i class="fas fa-clipboard-check mr-3"></i>Mis Órdenes
+                </h2>
+                <div class="flex items-center">
+                    <span class="text-cyan-300 mr-2 text-sm">Filtrar por:</span>
+                    <select id="filter-my-orders" class="bg-gray-800 border border-cyan-500 text-cyan-300 rounded px-3 py-1 text-sm">
+                        <option value="all">Todas</option>
+                        <option value="en_curso">En Curso</option>
+                        <option value="completado">Completadas</option>
+                        <option value="cancelado">Canceladas</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div id="assigned-orders-list" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="cyber-card p-4 flex items-center justify-center h-40">
+                    <div class="text-center">
+                        <div class="cyber-loader mx-auto mb-2"></div>
+                        <p class="text-cyan-300">Cargando órdenes...</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="profile-section" class="hidden mb-8">
+            <h2 class="text-2xl font-bold text-cyan-300 mb-4 flex items-center">
+                <i class="fas fa-user-circle mr-3"></i>Mi Perfil
+            </h2>
+            
+            <div class="cyber-card p-6">
+                <div class="flex flex-col md:flex-row items-start">
+                    <div class="w-24 h-24 rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 flex items-center justify-center mb-4 md:mb-0 md:mr-6">
+                        <i class="fas fa-user text-3xl text-gray-900"></i>
+                    </div>
+                    
+                    <div class="flex-1">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                            <div>
+                                <label class="block text-cyan-300 mb-1">Nombre</label>
+                                <p id="profile-name" class="bg-gray-800 p-2 rounded">Cargando...</p>
+                            </div>
+                            <div>
+                                <label class="block text-cyan-300 mb-1">Email</label>
+                                <p id="profile-email" class="bg-gray-800 p-2 rounded">Cargando...</p>
+                            </div>
+                            <div>
+                                <label class="block text-cyan-300 mb-1">Teléfono</label>
+                                <p id="profile-phone" class="bg-gray-800 p-2 rounded">Cargando...</p>
+                            </div>
+                            <div>
+                                <label class="block text-cyan-300 mb-1">Zona</label>
+                                <p id="profile-zone" class="bg-gray-800 p-2 rounded">Cargando...</p>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-6">
+                            <h3 class="text-lg font-bold text-cyan-300 mb-2">Estadísticas</h3>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                <div class="text-center p-3 cyber-card">
+                                    <p class="text-3xl font-bold text-cyan-300" id="stats-completed">0</p>
+                                    <p class="text-cyan-200">Completadas</p>
+                                </div>
+                                <div class="text-center p-3 cyber-card">
+                                    <p class="text-3xl font-bold text-cyan-300" id="stats-pending">0</p>
+                                    <p class="text-cyan-200">En Curso</p>
+                                </div>
+                                <div class="text-center p-3 cyber-card">
+                                    <p class="text-3xl font-bold text-cyan-300" id="stats-cancelled">0</p>
+                                    <p class="text-cyan-200">Canceladas</p>
+                                </div>
+                                <div class="text-center p-3 cyber-card">
+                                    <p class="text-3xl font-bold text-cyan-300" id="stats-rating">0.0</p>
+                                    <p class="text-cyan-200">Valoración</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="map-section" class="hidden mb-8">
+            <h2 class="text-2xl font-bold text-cyan-300 mb-4 flex items-center">
+                <i class="fas fa-map-marked-alt mr-3"></i>Vista de Mapa
+            </h2>
+            
+            <div class="cyber-card p-6">
+                <div class="map-preview">
+                    <i class="fas fa-map-marker-alt mr-2"></i>Vista previa del mapa de órdenes
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                    <div class="p-4 bg-gray-800 rounded-lg">
+                        <h3 class="text-lg font-bold text-cyan-300 mb-2">Órdenes Activas</h3>
+                        <div id="map-orders-list">
+                            <div class="text-center py-4 text-cyan-500">
+                                <i class="fas fa-spinner fa-spin text-xl mb-2"></i>
+                                <p>Cargando órdenes...</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="p-4 bg-gray-800 rounded-lg">
+                        <h3 class="text-lg font-bold text-cyan-300 mb-2">Ruta Optimizada</h3>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 0%"></div>
+                        </div>
+                        <p class="text-cyan-200 text-sm mt-2">Tiempo estimado: <span id="estimated-time">-- min</span></p>
+                        <p class="text-cyan-200 text-sm">Distancia total: <span id="total-distance">-- km</span></p>
+                        
+                        <button class="cyber-btn w-full mt-4 bg-gradient-to-r from-green-500 to-teal-500">
+                            <i class="fas fa-route mr-2"></i>Optimizar Ruta
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="chat-section" class="hidden mb-8">
+            <h2 class="text-2xl font-bold text-cyan-300 mb-4 flex items-center">
+                <i class="fas fa-comments mr-3"></i>Chat con Clientes
+            </h2>
+            
+            <div class="cyber-card p-6">
+                <div class="mb-4">
+                    <label class="block text-cyan-300 mb-2">Seleccionar orden para chatear:</label>
+                    <select id="chat-order-select" class="w-full bg-gray-800 border border-cyan-500 text-cyan-300 rounded px-3 py-2">
+                        <option value="">-- Selecciona una orden --</option>
+                    </select>
+                </div>
+                
+                <div id="chat-container" class="hidden">
+                    <div class="bg-gray-800 rounded-lg p-4 mb-4 h-64 overflow-y-auto flex flex-col" id="chat-messages">
+                        <div class="text-center text-cyan-500 py-10">
+                            <i class="fas fa-comment-slash text-2xl mb-2"></i>
+                            <p>No hay mensajes aún. Inicia la conversación.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex">
+                        <input type="text" id="chat-input" placeholder="Escribe tu mensaje..." 
+                               class="flex-1 bg-gray-800 border border-cyan-500 text-cyan-300 rounded-l px-3 py-2">
+                        <button id="send-message" class="cyber-btn rounded-l-none">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <footer class="text-center text-cyan-500 text-sm mt-12 py-4 border-t border-cyan-800">
+            <p>NIVOR Delivery System © 2023 - Powered by CyberTech</p>
+        </footer>
+    </div>
+
+    <div id="toast" class="fixed top-4 right-4 cyber-card p-4 transform translate-x-full transition-transform duration-300 hidden z-50">
+        <div class="flex items-center">
+            <i class="fas fa-bell text-cyan-400 mr-2"></i>
+            <p id="toast-message" class="text-cyan-200"></p>
+        </div>
+    </div>
+
+    <div id="notification-panel" class="notification-panel">
+        <div class="p-3 border-b border-cyan-700 flex justify-between items-center">
+            <h3 class="text-cyan-300 font-bold">Notificaciones</h3>
+            <button id="clear-notifications" class="text-cyan-500 hover:text-cyan-300 text-sm">
+                <i class="fas fa-trash-alt mr-1"></i>Limpiar
+            </button>
+        </div>
+        <div id="notification-list">
+            <div class="text-center py-8 text-cyan-500">
+                <i class="fas fa-bell-slash text-xl mb-2"></i>
+                <p>No hay notificaciones</p>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
+        import { getFirestore, collection, getDocs, doc, updateDoc, query, where, onSnapshot, getDoc, orderBy, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+
+        // Configuración de Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyBL5ki_UCWAAQVCw8haAU8gN_9-kzUpRKE",
+            authDomain: "nivor-a-domicilio.firebaseapp.com",
+            projectId: "nivor-a-domicilio",
+            storageBucket: "nivor-a-domicilio.firebasestorage.app",
+            messagingSenderId: "807776798823",
+            appId: "1:807776798823:web:2f662987e74f91da1cacc2"
+        };
+
+        // Inicializa Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let employeeId = null;
+        let employeeData = null;
+        let assignedOrdersListener = null;
+        let unassignedOrdersListener = null;
+        let chatListener = null;
+        let currentChatOrderId = null;
+
+        // Actualizar la hora en tiempo real
+        function updateClock() {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('es-ES');
+            const dateStr = now.toLocaleDateString('es-ES', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            document.getElementById('current-time').textContent = `${timeStr} - ${dateStr}`;
+        }
+        
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // Verificar estado de autenticación y rol de empleado
+        onAuthStateChanged(auth, async user => {
+            if (!user) {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            employeeId = user.uid;
+            await loadEmployeeData(user.uid);
+            
+            setupUnassignedOrdersListener();
+            setupAssignedOrdersListener();
+            setupRealTimeListeners();
+            updateQuickStats();
+            loadChatOrders();
+        });
+
+        // Navegación
+        document.getElementById('show-unassigned').addEventListener('click', () => {
+            setActiveNav('show-unassigned');
+            document.getElementById('unassigned-orders-section').classList.remove('hidden');
+            document.getElementById('assigned-orders-section').classList.add('hidden');
+            document.getElementById('profile-section').classList.add('hidden');
+            document.getElementById('map-section').classList.add('hidden');
+            document.getElementById('chat-section').classList.add('hidden');
+        });
+
+        document.getElementById('show-assigned').addEventListener('click', () => {
+            setActiveNav('show-assigned');
+            document.getElementById('unassigned-orders-section').classList.add('hidden');
+            document.getElementById('assigned-orders-section').classList.remove('hidden');
+            document.getElementById('profile-section').classList.add('hidden');
+            document.getElementById('map-section').classList.add('hidden');
+            document.getElementById('chat-section').classList.add('hidden');
+        });
+
+        document.getElementById('show-profile').addEventListener('click', () => {
+            setActiveNav('show-profile');
+            document.getElementById('unassigned-orders-section').classList.add('hidden');
+            document.getElementById('assigned-orders-section').classList.add('hidden');
+            document.getElementById('profile-section').classList.remove('hidden');
+            document.getElementById('map-section').classList.add('hidden');
+            document.getElementById('chat-section').classList.add('hidden');
+        });
+
+        document.getElementById('show-map').addEventListener('click', () => {
+            setActiveNav('show-map');
+            document.getElementById('unassigned-orders-section').classList.add('hidden');
+            document.getElementById('assigned-orders-section').classList.add('hidden');
+            document.getElementById('profile-section').classList.add('hidden');
+            document.getElementById('map-section').classList.remove('hidden');
+            document.getElementById('chat-section').classList.add('hidden');
+            loadMapOrders();
+        });
+
+        document.getElementById('show-chat').addEventListener('click', () => {
+            setActiveNav('show-chat');
+            document.getElementById('unassigned-orders-section').classList.add('hidden');
+            document.getElementById('assigned-orders-section').classList.add('hidden');
+            document.getElementById('profile-section').classList.add('hidden');
+            document.getElementById('map-section').classList.add('hidden');
+            document.getElementById('chat-section').classList.remove('hidden');
+        });
+
+        document.getElementById('logout').addEventListener('click', () => {
+            signOut(auth).then(() => {
+                window.location.href = 'login.html';
+            }).catch(error => {
+                console.error("Error al cerrar sesión:", error);
+                showToast("Error al cerrar sesión");
+            });
+        });
+
+        document.getElementById('refresh-btn').addEventListener('click', () => {
+            if (unassignedOrdersListener) {
+                setupUnassignedOrdersListener();
+            }
+            if (assignedOrdersListener) {
+                setupAssignedOrdersListener();
+            }
+            showToast("Datos actualizados");
+        });
+
+        // Notificaciones
+        document.getElementById('notifications-btn').addEventListener('click', () => {
+            const panel = document.getElementById('notification-panel');
+            panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+        });
+
+        document.getElementById('clear-notifications').addEventListener('click', () => {
+            document.getElementById('notification-list').innerHTML = `
+                <div class="text-center py-8 text-cyan-500">
+                    <i class="fas fa-bell-slash text-xl mb-2"></i>
+                    <p>No hay notificaciones</p>
+                </div>
+            `;
+            document.getElementById('notification-count').classList.add('hidden');
+            showToast("Notificaciones limpiadas");
+        });
+
+        // Chat
+        document.getElementById('chat-order-select').addEventListener('change', (e) => {
+            currentChatOrderId = e.target.value;
+            if (currentChatOrderId) {
+                document.getElementById('chat-container').classList.remove('hidden');
+                loadChatMessages(currentChatOrderId);
+            } else {
+                document.getElementById('chat-container').classList.add('hidden');
+            }
+        });
+
+        document.getElementById('send-message').addEventListener('click', sendMessage);
+        document.getElementById('chat-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        // Funciones auxiliares
+        function setActiveNav(activeId) {
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.getElementById(activeId).classList.add('active');
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toast-message');
+            
+            toastMessage.textContent = message;
+            toast.classList.remove('hidden');
+            toast.classList.remove('translate-x-full');
+            
+            setTimeout(() => {
+                toast.classList.add('translate-x-full');
+                setTimeout(() => toast.classList.add('hidden'), 300);
+            }, 3000);
+        }
+
+        async function loadEmployeeData(uid) {
+            try {
+                // Primero intentamos con la colección 'empleados'
+                let employeeDoc = await getDoc(doc(db, "empleados", uid));
+                
+                // Si no existe, intentamos con 'users'
+                if (!employeeDoc.exists()) {
+                    employeeDoc = await getDoc(doc(db, "users", uid));
+                }
+                
+                if (employeeDoc.exists()) {
+                    employeeData = employeeDoc.data();
+                    document.getElementById('employee-name').textContent = employeeData.nombre || employeeData.name || 'Empleado';
+                    document.getElementById('profile-name').textContent = employeeData.nombre || employeeData.name || 'No especificado';
+                    document.getElementById('profile-email').textContent = employeeData.email || employeeData.correo || 'No especificado';
+                    document.getElementById('profile-phone').textContent = employeeData.telefono || employeeData.phone || 'No especificado';
+                    document.getElementById('profile-zone').textContent = employeeData.zona || employeeData.zone || 'No especificado';
+                } else {
+                    console.error("No se encontró el documento del empleado");
+                    showToast("Error al cargar datos del empleado");
+                }
+            } catch (error) {
+                console.error("Error al cargar datos del empleado:", error);
+                showToast("Error al cargar datos del empleado");
+            }
+        }
+
+        function setupUnassignedOrdersListener() {
+            // Buscar órdenes con estado "pendiente" y sin empleado asignado
+            const q = query(
+                collection(db, "orders"),
+                where("status", "==", "pendiente"),
+                where("empleadoId", "==", null)
+            );
+            
+            if (unassignedOrdersListener) {
+                unassignedOrdersListener();
+            }
+            
+            unassignedOrdersListener = onSnapshot(q, (snapshot) => {
+                const ordersList = document.getElementById('unassigned-orders-list');
+                ordersList.innerHTML = '';
+                
+                if (snapshot.empty) {
+                    ordersList.innerHTML = `
+                        <div class="cyber-card p-6 text-center col-span-2">
+                            <i class="fas fa-clipboard-list text-4xl text-cyan-500 mb-3"></i>
+                            <h3 class="text-xl font-bold text-cyan-300 mb-2">No hay órdenes disponibles</h3>
+                            <p class="text-cyan-200">Todas las órdenes han sido asignadas</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                snapshot.forEach(async (docSnapshot) => {
+                    const order = { id: docSnapshot.id, ...docSnapshot.data() };
+                    const orderElement = await createOrderCard(order, false);
+                    ordersList.appendChild(orderElement);
+                });
+                
+                updateQuickStats();
+            }, error => {
+                console.error("Error al obtener órdenes no asignadas:", error);
+                showToast("Error al cargar órdenes");
+            });
+        }
+
+        function setupAssignedOrdersListener() {
+            const q = query(
+                collection(db, "orders"),
+                where("empleadoId", "==", employeeId),
+                orderBy("fecha", "desc")
+            );
+            
+            if (assignedOrdersListener) {
+                assignedOrdersListener();
+            }
+            
+            assignedOrdersListener = onSnapshot(q, (snapshot) => {
+                const ordersList = document.getElementById('assigned-orders-list');
+                ordersList.innerHTML = '';
+                
+                if (snapshot.empty) {
+                    ordersList.innerHTML = `
+                        <div class="cyber-card p-6 text-center col-span-2">
+                            <i class="fas fa-clipboard-check text-4xl text-cyan-500 mb-3"></i>
+                            <h3 class="text-xl font-bold text-cyan-300 mb-2">No tienes órdenes asignadas</h3>
+                            <p class="text-cyan-200">Acepta órdenes disponibles para comenzar</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                snapshot.forEach(async (docSnapshot) => {
+                    const order = { id: docSnapshot.id, ...docSnapshot.data() };
+                    const orderElement = await createOrderCard(order, true);
+                    ordersList.appendChild(orderElement);
+                });
+                
+                updateQuickStats();
+                loadChatOrders();
+            }, error => {
+                console.error("Error al obtener órdenes asignadas:", error);
+                showToast("Error al cargar tus órdenes");
+            });
+        }
+
+        async function createOrderCard(order, isAssigned) {
+            const card = document.createElement('div');
+            card.className = `cyber-card p-4 order-card ${isAssigned ? order.status : ''}`;
+            
+            // Obtener información del servicio
+            let serviceName = "Servicio no especificado";
+            let serviceIcon = "fa-box";
+            
+            if (order.servicioId) {
+                try {
+                    const serviceDoc = await getDoc(doc(db, "services", order.servicioId));
+                    if (serviceDoc.exists()) {
+                        const serviceData = serviceDoc.data();
+                        // Usamos 'nombre' o 'name' según lo que exista en la base de datos
+                        serviceName = serviceData.nombre || serviceData.name || "Servicio sin nombre";
+                        serviceIcon = serviceData.icono || "fa-box";
+                    }
+                } catch (error) {
+                    console.error("Error al obtener datos del servicio:", error);
+                }
+            }
+            
+            // Obtener información del cliente
+            let clientName = "Cliente no especificado";
+            let clientAddress = "Dirección no disponible";
+            let clientPhone = "Teléfono no disponible";
+            
+            if (order.clienteId) {
+                try {
+                    const clientDoc = await getDoc(doc(db, "users", order.clienteId));
+                    if (clientDoc.exists()) {
+                        const clientData = clientDoc.data();
+                        clientName = clientData.nombre || clientData.name || "Cliente no especificado";
+                        clientAddress = clientData.direccion || clientData.address || "Dirección no disponible";
+                        clientPhone = clientData.telefono || clientData.phone || "Teléfono no disponible";
+                    }
+                } catch (error) {
+                    console.error("Error al obtener datos del cliente:", error);
+                }
+            }
+            
+            // Formatear fecha
+            const orderDate = order.fecha ? order.fecha.toDate().toLocaleDateString('es-ES', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            }) : 'Fecha no disponible';
+            
+            // Determinar si es urgente
+            const isUrgent = order.prioridad === 'alta' || order.urgente === true;
+            
+            card.innerHTML = `
+                <div class="flex justify-between items-start mb-3">
+                    <div>
+                        <h3 class="font-bold text-lg text-cyan-300">Orden #${order.id.substring(0, 8)}</h3>
+                        <span class="time-display">${orderDate}</span>
+                    </div>
+                    <div class="flex items-center">
+                        <span class="status-badge status-${order.status}">${order.status.replace('_', ' ')}</span>
+                        ${isUrgent ? '<span class="ml-2 text-red-400 urgent-flash"><i class="fas fa-exclamation-circle"></i></span>' : ''}
+                    </div>
+                </div>
+                
+                <div class="flex items-center mb-3">
+                    <div class="service-icon">
+                        <i class="fas ${serviceIcon} text-gray-900"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-medium text-cyan-200">${serviceName}</h4>
+                        <p class="text-sm text-cyan-400">${clientName}</p>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <p class="text-sm text-cyan-300"><i class="fas fa-map-marker-alt mr-2"></i>${clientAddress}</p>
+                    <p class="text-sm text-cyan-300"><i class="fas fa-phone mr-2"></i>${clientPhone}</p>
+                </div>
+                
+                <div class="mb-3">
+                    <p class="text-sm text-cyan-200"><i class="fas fa-sticky-note mr-2"></i>${order.detalles || order.descripcion || 'Sin detalles adicionales'}</p>
+                </div>
+                
+                <div class="flex justify-between items-center mt-4">
+                    ${isAssigned ? `
+                        <div class="flex space-x-2">
+                            <button class="cyber-btn bg-gradient-to-r from-green-500 to-teal-500 complete-order" data-order-id="${order.id}">
+                                <i class="fas fa-check mr-1"></i>Completar
+                            </button>
+                            <button class="cyber-btn bg-gradient-to-r from-red-500 to-orange-500 cancel-order" data-order-id="${order.id}">
+                                <i class="fas fa-times mr-1"></i>Cancelar
+                            </button>
+                        </div>
+                        <button class="cyber-btn bg-gradient-to-r from-blue-500 to-indigo-500 view-order" data-order-id="${order.id}">
+                            <i class="fas fa-eye mr-1"></i>Detalles
+                        </button>
+                    ` : `
+                        <button class="cyber-btn accept-order" data-order-id="${order.id}">
+                            <i class="fas fa-hand-paper mr-1"></i>Aceptar Orden
+                        </button>
+                        <button class="cyber-btn bg-gradient-to-r from-blue-500 to-indigo-500 view-order" data-order-id="${order.id}">
+                            <i class="fas fa-eye mr-1"></i>Detalles
+                        </button>
+                    `}
+                </div>
+            `;
+            
+            // Agregar event listeners a los botones
+            if (!isAssigned) {
+                card.querySelector('.accept-order').addEventListener('click', () => acceptOrder(order.id));
+            } else {
+                card.querySelector('.complete-order').addEventListener('click', () => completeOrder(order.id));
+                card.querySelector('.cancel-order').addEventListener('click', () => cancelOrder(order.id));
+            }
+            
+            card.querySelector('.view-order').addEventListener('click', () => viewOrderDetails(order));
+            
+            return card;
+        }
+
+        async function acceptOrder(orderId) {
+            try {
+                await updateDoc(doc(db, "orders", orderId), {
+                    status: "en_curso",
+                    empleadoId: employeeId,
+                    fechaAceptacion: new Date()
+                });
+                
+                showToast("Orden aceptada correctamente");
+                
+                // Agregar notificación
+                addNotification(`Has aceptado la orden #${orderId.substring(0, 8)}`);
+                
+            } catch (error) {
+                console.error("Error al aceptar la orden:", error);
+                showToast("Error al aceptar la orden");
+            }
+        }
+
+        async function completeOrder(orderId) {
+            try {
+                await updateDoc(doc(db, "orders", orderId), {
+                    status: "completado",
+                    fechaCompletado: new Date()
+                });
+                
+                showToast("Orden marcada como completada");
+                
+                // Agregar notificación
+                addNotification(`Has completado la orden #${orderId.substring(0, 8)}`);
+                
+            } catch (error) {
+                console.error("Error al completar la orden:", error);
+                showToast("Error al completar la orden");
+            }
+        }
+
+        async function cancelOrder(orderId) {
+            if (!confirm("¿Estás seguro de que deseas cancelar esta orden?")) return;
+            
+            try {
+                await updateDoc(doc(db, "orders", orderId), {
+                    status: "cancelado",
+                    fechaCancelacion: new Date()
+                });
+                
+                showToast("Orden cancelada");
+                
+                // Agregar notificación
+                addNotification(`Has cancelado la orden #${orderId.substring(0, 8)}`);
+                
+            } catch (error) {
+                console.error("Error al cancelar la orden:", error);
+                showToast("Error al cancelar la orden");
+            }
+        }
+
+        function viewOrderDetails(order) {
+            // Aquí implementarías la lógica para mostrar detalles completos de la orden
+            // Por ahora, mostraremos un alert con la información básica
+            alert(`Detalles de la orden:\nID: ${order.id}\nCliente: ${order.clienteNombre}\nDirección: ${order.direccion}\nEstado: ${order.status}`);
+        }
+
+        function setupRealTimeListeners() {
+            // Escuchar cambios en el perfil del empleado
+            // Primero intentamos con 'empleados', luego con 'users'
+            const employeeRef = doc(db, "empleados", employeeId);
+            
+            onSnapshot(employeeRef, (doc) => {
+                if (doc.exists()) {
+                    const updatedData = doc.data();
+                    employeeData = updatedData;
+                    
+                    document.getElementById('employee-name').textContent = updatedData.nombre || updatedData.name || 'Empleado';
+                    document.getElementById('profile-name').textContent = updatedData.nombre || updatedData.name || 'No especificado';
+                    document.getElementById('profile-email').textContent = updatedData.email || updatedData.correo || 'No especificado';
+                    document.getElementById('profile-phone').textContent = updatedData.telefono || updatedData.phone || 'No especificado';
+                    document.getElementById('profile-zone').textContent = updatedData.zona || updatedData.zone || 'No especificado';
+                } else {
+                    // Si no existe en empleados, intentar con users
+                    const userRef = doc(db, "users", employeeId);
+                    onSnapshot(userRef, (userDoc) => {
+                        if (userDoc.exists()) {
+                            const updatedData = userDoc.data();
+                            employeeData = updatedData;
+                            
+                            document.getElementById('employee-name').textContent = updatedData.nombre || updatedData.name || 'Empleado';
+                            document.getElementById('profile-name').textContent = updatedData.nombre || updatedData.name || 'No especificado';
+                            document.getElementById('profile-email').textContent = updatedData.email || updatedData.correo || 'No especificado';
+                            document.getElementById('profile-phone').textContent = updatedData.telefono || updatedData.phone || 'No especificado';
+                            document.getElementById('profile-zone').textContent = updatedData.zona || updatedData.zone || 'No especificado';
+                        }
+                    });
+                }
+            });
+        }
+
+        async function updateQuickStats() {
+            try {
+                // Obtener estadísticas rápidas
+                const assignedQuery = query(
+                    collection(db, "orders"),
+                    where("empleadoId", "==", employeeId)
+                );
+                
+                const assignedSnapshot = await getDocs(assignedQuery);
+                
+                let availableCount = 0;
+                let activeCount = 0;
+                let completedCount = 0;
+                let ratingSum = 0;
+                let ratingCount = 0;
+                
+                assignedSnapshot.forEach(doc => {
+                    const order = doc.data();
+                    
+                    if (order.status === "en_curso") {
+                        activeCount++;
+                    } else if (order.status === "completado") {
+                        completedCount++;
+                        if (order.calificacion) {
+                            ratingSum += order.calificacion;
+                            ratingCount++;
+                        }
+                    }
+                });
+                
+                // Obtener órdenes disponibles
+                const unassignedQuery = query(
+                    collection(db, "orders"),
+                    where("status", "==", "pendiente"),
+                    where("empleadoId", "==", null)
+                );
+                
+                const unassignedSnapshot = await getDocs(unassignedQuery);
+                availableCount = unassignedSnapshot.size;
+                
+                // Actualizar UI
+                document.getElementById('quick-stats-available').textContent = availableCount;
+                document.getElementById('quick-stats-active').textContent = activeCount;
+                document.getElementById('quick-stats-completed').textContent = completedCount;
+                
+                const avgRating = ratingCount > 0 ? (ratingSum / ratingCount).toFixed(1) : "0.0";
+                document.getElementById('quick-stats-rating').textContent = avgRating;
+                
+                // Actualizar estadísticas del perfil
+                document.getElementById('stats-completed').textContent = completedCount;
+                document.getElementById('stats-pending').textContent = activeCount;
+                document.getElementById('stats-cancelled').textContent = assignedSnapshot.size - activeCount - completedCount;
+                document.getElementById('stats-rating').textContent = avgRating;
+                
+            } catch (error) {
+                console.error("Error al actualizar estadísticas:", error);
+            }
+        }
+
+        function addNotification(message) {
+            const notificationList = document.getElementById('notification-list');
+            const notificationCount = document.getElementById('notification-count');
+            
+            // Si no hay notificaciones, limpiar el estado inicial
+            if (notificationList.querySelector('.text-center')) {
+                notificationList.innerHTML = '';
+            }
+            
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+            
+            const notificationItem = document.createElement('div');
+            notificationItem.className = 'notification-item unread';
+            notificationItem.innerHTML = `
+                <div class="flex justify-between items-start">
+                    <p class="text-cyan-200 text-sm">${message}</p>
+                    <span class="text-cyan-500 text-xs">${timeStr}</span>
+                </div>
+            `;
+            
+            notificationList.prepend(notificationItem);
+            
+            // Actualizar contador
+            const currentCount = parseInt(notificationCount.textContent) || 0;
+            notificationCount.textContent = currentCount + 1;
+            notificationCount.classList.remove('hidden');
+            
+            // Reproducir sonido de notificación (opcional)
+            try {
+                const audio = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-alert-quick-chime-766.mp3');
+                audio.volume = 0.3;
+                audio.play();
+            } catch (e) {
+                console.log("No se pudo reproducir sonido de notificación");
+            }
+        }
+
+        async function loadChatOrders() {
+            const chatOrderSelect = document.getElementById('chat-order-select');
+            
+            try {
+                const q = query(
+                    collection(db, "orders"),
+                    where("empleadoId", "==", employeeId),
+                    where("status", "in", ["en_curso", "completado"])
+                );
+                
+                const snapshot = await getDocs(q);
+                
+                // Limpiar opciones existentes excepto la primera
+                while (chatOrderSelect.options.length > 1) {
+                    chatOrderSelect.remove(1);
+                }
+                
+                if (snapshot.empty) {
+                    const option = document.createElement('option');
+                    option.value = "";
+                    option.textContent = "-- No tienes órdenes activas --";
+                    chatOrderSelect.appendChild(option);
+                    return;
+                }
+                
+                snapshot.forEach(doc => {
+                    const order = doc.data();
+                    const option = document.createElement('option');
+                    option.value = doc.id;
+                    option.textContent = `Orden #${doc.id.substring(0, 8)} - ${order.clienteNombre || 'Cliente'}`;
+                    chatOrderSelect.appendChild(option);
+                });
+                
+            } catch (error) {
+                console.error("Error al cargar órdenes para chat:", error);
+            }
+        }
+
+        function loadChatMessages(orderId) {
+            if (chatListener) {
+                chatListener(); // Desactivar listener anterior
+            }
+            
+            const chatMessages = document.getElementById('chat-messages');
+            chatMessages.innerHTML = `
+                <div class="text-center text-cyan-500 py-10">
+                    <i class="fas fa-spinner fa-spin text-xl mb-2"></i>
+                    <p>Cargando mensajes...</p>
+                </div>
+            `;
+            
+            const q = query(
+                collection(db, "orders", orderId, "messages"),
+                orderBy("timestamp", "asc")
+            );
+            
+            chatListener = onSnapshot(q, (snapshot) => {
+                chatMessages.innerHTML = '';
+                
+                if (snapshot.empty) {
+                    chatMessages.innerHTML = `
+                        <div class="text-center text-cyan-500 py-10">
+                            <i class="fas fa-comment-slash text-2xl mb-2"></i>
+                            <p>No hay mensajes aún. Inicia la conversación.</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                snapshot.forEach(doc => {
+                    const message = doc.data();
+                    const messageElement = document.createElement('div');
+                    messageElement.className = `chat-bubble ${message.sender === 'employee' ? 'employee' : 'customer'}`;
+                    
+                    const time = message.timestamp ? message.timestamp.toDate().toLocaleTimeString('es-ES', { 
+                        hour: '2-digit', 
+                        minute: '2-digit' 
+                    }) : '--:--';
+                    
+                    messageElement.innerHTML = `
+                        <p class="text-sm">${message.text}</p>
+                        <span class="text-xs opacity-70 block mt-1 text-right">${time}</span>
+                    `;
+                    
+                    chatMessages.appendChild(messageElement);
+                });
+                
+                // Scroll to bottom
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            });
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('chat-input');
+            const message = input.value.trim();
+            
+            if (!message || !currentChatOrderId) return;
+            
+            try {
+                await addDoc(collection(db, "orders", currentChatOrderId, "messages"), {
+                    text: message,
+                    sender: 'employee',
+                    senderId: employeeId,
+                    timestamp: serverTimestamp()
+                });
+                
+                input.value = '';
+                
+            } catch (error) {
+                console.error("Error al enviar mensaje:", error);
+                showToast("Error al enviar mensaje");
+            }
+        }
+
+        async function loadMapOrders() {
+            const mapOrdersList = document.getElementById('map-orders-list');
+            
+            try {
+                const q = query(
+                    collection(db, "orders"),
+                    where("empleadoId", "==", employeeId),
+                    where("status", "in", ["en_curso", "asignado"])
+                );
+                
+                const snapshot = await getDocs(q);
+                
+                mapOrdersList.innerHTML = '';
+                
+                if (snapshot.empty) {
+                    mapOrdersList.innerHTML = `
+                        <div class="text-center py-4 text-cyan-500">
+                            <i class="fas fa-map-marker-alt-slash text-xl mb-2"></i>
+                            <p>No tienes órdenes activas para mostrar en el mapa</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                snapshot.forEach(doc => {
+                    const order = doc.data();
+                    const orderElement = document.createElement('div');
+                    orderElement.className = 'mb-3 pb-3 border-b border-cyan-800 last:border-b-0';
+                    
+                    orderElement.innerHTML = `
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h4 class="font-medium text-cyan-300">Orden #${doc.id.substring(0, 8)}</h4>
+                                <p class="text-sm text-cyan-200">${order.clienteNombre || 'Cliente'}</p>
+                            </div>
+                            <span class="status-badge status-${order.status} text-xs">${order.status}</span>
+                        </div>
+                        <p class="text-xs text-cyan-400 mt-1"><i class="fas fa-map-marker-alt mr-1"></i>${order.direccion || 'Dirección no disponible'}</p>
+                    `;
+                    
+                    mapOrdersList.appendChild(orderElement);
+                });
+                
+                // Simular cálculo de ruta
+                document.querySelector('.progress-fill').style.width = '65%';
+                document.getElementById('estimated-time').textContent = '38 min';
+                document.getElementById('total-distance').textContent = '12.7 km';
+                
+            } catch (error) {
+                console.error("Error al cargar órdenes para el mapa:", error);
+                mapOrdersList.innerHTML = `
+                    <div class="text-center py-4 text-red-400">
+                        <i class="fas fa-exclamation-circle text-xl mb-2"></i>
+                        <p>Error al cargar las órdenes</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Simulación de notificaciones automáticas
+        setInterval(() => {
+            // 20% de probabilidad de recibir una notificación automática
+            if (Math.random() < 0.2) {
+                const notifications = [
+                    "Nueva orden disponible en tu zona",
+                    "Recordatorio: tienes una orden pendiente de completar",
+                    "Actualización del sistema: nuevas funciones disponibles",
+                    "Cliente ha calificado tu servicio reciente",
+                    "Tu zona de trabajo ha sido ampliada"
+                ];
+                
+                const randomNotification = notifications[Math.floor(Math.random() * notifications.length)];
+                addNotification(randomNotification);
+                showToast("Tienes una nueva notificación");
+            }
+        }, 60000); // Cada minuto
+    </script>
+</body>
+</html>
