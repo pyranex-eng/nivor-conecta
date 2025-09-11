@@ -917,14 +917,14 @@
             // Obtener información del servicio
             let serviceName = "Servicio no especificado";
             let serviceIcon = "fa-box";
-            
-            if (order.servicioId) {
+            // Usar el campo correcto para el ID del servicio
+            const realServiceId = order.serviceId || order.servicioId;
+            if (realServiceId) {
                 try {
-                    const serviceDoc = await getDoc(doc(db, "services", order.servicioId));
+                    const serviceDoc = await getDoc(doc(db, "services", realServiceId));
                     if (serviceDoc.exists()) {
                         const serviceData = serviceDoc.data();
-                        // Usamos 'nombre' o 'name' según lo que exista en la base de datos
-                        serviceName = serviceData.nombre || serviceData.name || "Servicio sin nombre";
+                        serviceName = serviceData.nombre || "Servicio sin nombre";
                         serviceIcon = serviceData.icono || "fa-box";
                     }
                 } catch (error) {

@@ -258,6 +258,48 @@
             transform: translateY(-2px);
             box-shadow: 0 0 10px rgba(0, 230, 255, 0.5);
         }
+
+        .online-status {
+            position: absolute;
+            top: 60px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            color: var(--light);
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .current-time {
+            position: absolute;
+            top: 100px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            color: var(--light);
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+            /* CHAT BUBBLES COMO EMPLEADO */
+            .chat-bubble {
+                max-width: 70%;
+                padding: 10px 15px;
+                border-radius: 18px;
+                margin: 5px 0;
+            }
+            .chat-bubble.customer {
+                background: rgba(0, 102, 255, 0.3);
+                border: 1px solid rgba(0, 102, 255, 0.5);
+                align-self: flex-start;
+            }
+            .chat-bubble.employee {
+                background: rgba(0, 230, 255, 0.3);
+                border: 1px solid rgba(0, 230, 255, 0.5);
+                align-self: flex-end;
+            }
     </style>
 </head>
 <body class="min-h-screen">
@@ -272,6 +314,7 @@
         </button>
     </nav>
 
+
     <div class="container mx-auto pt-24 pb-12 px-4">
         <div class="flex space-x-2 mb-8">
             <button id="show-services" class="tab-button active flex items-center">
@@ -280,7 +323,18 @@
             <button id="show-history" class="tab-button flex items-center">
                 <i class="fas fa-history mr-2"></i> Historial de Órdenes
             </button>
+            <button id="show-chat" class="tab-button flex items-center">
+                <i class="fas fa-comments mr-2"></i> Chat
+            </button>
         </div>
+
+            <!-- Estado de conexión y hora como en empleado -->
+            <div class="flex flex-col md:flex-row justify-end items-center mb-4 gap-4">
+                <div id="online-status" class="flex items-center text-green-400 font-bold">
+                    <i class="fas fa-circle-notch fa-spin mr-2"></i> Conectado
+                </div>
+                <div id="current-time" class="time-display text-xs text-cyan-300 font-mono"></div>
+            </div>
 
         <section id="services-section">
             <h2 class="text-3xl font-bold text-cyan-400 mb-6 cyber-glow">Servicios Disponibles</h2>
@@ -298,6 +352,33 @@
                 <div class="text-center py-12">
                     <div class="loading-spinner"></div>
                     <p class="mt-3 text-cyan-300">Cargando historial...</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- NUEVA SECCIÓN DE CHAT -->
+        <section id="chat-section" class="hidden">
+            <h2 class="text-3xl font-bold text-cyan-400 mb-6 cyber-glow flex items-center"><i class="fas fa-comments mr-2"></i>Chat con Soporte/Técnico</h2>
+            <div class="cyber-card p-6 mb-6">
+                <div class="mb-4">
+                    <label class="block text-cyan-300 mb-2">Selecciona una orden para chatear:</label>
+                    <select id="chat-order-select" class="w-full bg-gray-800 border border-cyan-500 text-cyan-300 rounded px-3 py-2">
+                        <option value="">-- Selecciona una orden --</option>
+                    </select>
+                </div>
+                <div id="chat-container" class="hidden">
+                    <div class="bg-gray-800 rounded-lg p-4 mb-4 h-64 overflow-y-auto flex flex-col" id="chat-messages">
+                        <div class="text-center text-cyan-500 py-10">
+                            <i class="fas fa-comment-slash text-2xl mb-2"></i>
+                            <p>No hay mensajes aún. Inicia la conversación.</p>
+                        </div>
+                    </div>
+                    <div class="flex">
+                        <input type="text" id="chat-input" placeholder="Escribe tu mensaje..." class="flex-1 bg-gray-800 border border-cyan-500 text-cyan-300 rounded-l px-3 py-2">
+                        <button id="send-message" class="cyber-button rounded-l-none">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
         </section>
@@ -378,6 +459,34 @@
         </div>
     </div>
 
+    <div id="chat-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 hidden">
+        <div class="cyber-card w-11/12 md:w-1/2 lg:w-1/3 p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-cyan-400">Chat de Soporte</h3>
+                <button id="close-chat-modal" class="text-gray-400 hover:text-cyan-400">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div id="chat-container" class="max-h-60 overflow-y-auto mb-4">
+                <div class="text-center text-cyan-500 py-10">
+                    <i class="fas fa-spinner fa-spin text-2xl mb-2"></i>
+                    <p>Cargando mensajes...</p>
+                </div>
+            </div>
+            <div class="flex">
+                <input type="text" id="chat-input" class="w-full bg-gray-800 border border-cyan-500 rounded px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-cyan-400" placeholder="Escribe tu mensaje aquí..." required>
+                <button id="send-message" class="cyber-button ml-2">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="online-status" id="online-status">
+        <i class="fas fa-circle-notch fa-spin"></i> Conectado
+    </div>
+    <div class="current-time" id="current-time"></div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
@@ -414,6 +523,7 @@
             }
         });
 
+
         // Event Listeners
         document.getElementById('show-services').addEventListener('click', () => {
             switchTab('services');
@@ -422,6 +532,11 @@
         document.getElementById('show-history').addEventListener('click', () => {
             switchTab('history');
             fetchOrdersHistory();
+        });
+
+        document.getElementById('show-chat').addEventListener('click', () => {
+            switchTab('chat');
+            loadChatOrdersCliente();
         });
 
         document.getElementById('logout').addEventListener('click', () => {
@@ -439,6 +554,10 @@
 
         document.getElementById('close-payment-modal').addEventListener('click', () => {
             document.getElementById('payment-modal').classList.add('hidden');
+        });
+
+        document.getElementById('close-chat-modal').addEventListener('click', () => {
+            document.getElementById('chat-modal').classList.add('hidden');
         });
 
         document.getElementById('confirm-order').addEventListener('click', async () => {
@@ -532,17 +651,111 @@
 
         // Funciones de UI
         function switchTab(tabName) {
+            document.getElementById('show-services').classList.remove('active');
+            document.getElementById('show-history').classList.remove('active');
+            document.getElementById('show-chat').classList.remove('active');
+            document.getElementById('services-section').classList.add('hidden');
+            document.getElementById('history-section').classList.add('hidden');
+            document.getElementById('chat-section').classList.add('hidden');
             if (tabName === 'services') {
                 document.getElementById('show-services').classList.add('active');
-                document.getElementById('show-history').classList.remove('active');
                 document.getElementById('services-section').classList.remove('hidden');
-                document.getElementById('history-section').classList.add('hidden');
-            } else {
-                document.getElementById('show-services').classList.remove('active');
+            } else if (tabName === 'history') {
                 document.getElementById('show-history').classList.add('active');
-                document.getElementById('services-section').classList.add('hidden');
                 document.getElementById('history-section').classList.remove('hidden');
+            } else if (tabName === 'chat') {
+                document.getElementById('show-chat').classList.add('active');
+                document.getElementById('chat-section').classList.remove('hidden');
             }
+        }
+        // CHAT MEJORADO CLIENTE (como empleado)
+        let chatListenerCliente = null;
+        let currentChatOrderIdCliente = null;
+
+        async function loadChatOrdersCliente() {
+            const chatOrderSelect = document.getElementById('chat-order-select');
+            const user = auth.currentUser;
+            if (!user) return;
+            // Limpiar opciones excepto la primera
+            while (chatOrderSelect.options.length > 1) {
+                chatOrderSelect.remove(1);
+            }
+            // Buscar órdenes del cliente en curso o completadas
+            const q = query(collection(db, "orders"), where("clienteId", "==", user.uid), where("status", "in", ["en_curso", "completado"]));
+            const snapshot = await getDocs(q);
+            if (snapshot.empty) {
+                const option = document.createElement('option');
+                option.value = "";
+                option.textContent = "-- No tienes órdenes activas --";
+                chatOrderSelect.appendChild(option);
+                document.getElementById('chat-container').classList.add('hidden');
+                return;
+            }
+            snapshot.forEach(doc => {
+                const order = doc.data();
+                const option = document.createElement('option');
+                option.value = doc.id;
+                option.textContent = `Orden #${doc.id.substring(0, 8)} - ${order.status}`;
+                chatOrderSelect.appendChild(option);
+            });
+            document.getElementById('chat-container').classList.add('hidden');
+        }
+
+        document.getElementById('chat-order-select').addEventListener('change', (e) => {
+            currentChatOrderIdCliente = e.target.value;
+            if (currentChatOrderIdCliente) {
+                document.getElementById('chat-container').classList.remove('hidden');
+                loadChatMessagesCliente(currentChatOrderIdCliente);
+            } else {
+                document.getElementById('chat-container').classList.add('hidden');
+            }
+        });
+
+        async function loadChatMessagesCliente(orderId) {
+            if (chatListenerCliente) {
+                chatListenerCliente();
+            }
+            const chatMessages = document.getElementById('chat-messages');
+                chatMessages.innerHTML = `<div class="text-center text-cyan-500 py-10"><i class="fas fa-spinner fa-spin text-xl mb-2"></i><p>Cargando mensajes...</p></div>`;
+                const q = query(collection(db, "orders", orderId, "messages"), orderBy("timestamp", "asc"));
+                chatListenerCliente = onSnapshot(q, (snapshot) => {
+                    chatMessages.innerHTML = '';
+                    if (snapshot.empty) {
+                        chatMessages.innerHTML = `<div class="text-center text-cyan-500 py-10"><i class="fas fa-comment-slash text-2xl mb-2"></i><p>No hay mensajes aún. Inicia la conversación.</p></div>`;
+                        return;
+                    }
+                    snapshot.forEach(doc => {
+                        const message = doc.data();
+                        const messageElement = document.createElement('div');
+                        // Usar burbujas como en empleado
+                        messageElement.className = `chat-bubble ${message.sender === 'cliente' ? 'customer' : 'employee'}`;
+                        const time = message.timestamp ? (message.timestamp.toDate ? message.timestamp.toDate().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }) : new Date(message.timestamp).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })) : '--:--';
+                        messageElement.innerHTML = `<p class='text-sm'>${message.text}</p><span class='text-xs opacity-70 block mt-1 text-right'>${time}</span>`;
+                        chatMessages.appendChild(messageElement);
+                    });
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                });
+        }
+
+        document.getElementById('send-message').addEventListener('click', sendMessageCliente);
+        document.getElementById('chat-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessageCliente();
+            }
+        });
+
+        async function sendMessageCliente() {
+            const input = document.getElementById('chat-input');
+            const message = input.value.trim();
+            if (!message || !currentChatOrderIdCliente) return;
+            const user = auth.currentUser;
+            await addDoc(collection(db, "orders", currentChatOrderIdCliente, "messages"), {
+                text: message,
+                sender: 'cliente',
+                senderId: user.uid,
+                timestamp: new Date()
+            });
+            input.value = '';
         }
 
         function showOrderModal(serviceId, serviceName, servicePrice) {
@@ -564,6 +777,83 @@
             document.getElementById('card-details').style.display = 'block';
             document.getElementById('payment-modal').classList.remove('hidden');
         }
+
+        // --- CHAT MEJORADO PARA CLIENTE ---
+        // Permite al cliente chatear con el empleado asignado a su orden
+        async function openChatModalCliente(orderId) {
+            const chatModal = document.getElementById('chat-modal');
+            const chatContainer = document.getElementById('chat-messages');
+            const chatInput = document.getElementById('chat-input');
+            chatModal.classList.remove('hidden');
+            chatContainer.innerHTML = '<div class="text-center text-cyan-500 py-10"><i class="fas fa-spinner fa-spin text-2xl mb-2"></i><p>Cargando mensajes...</p></div>';
+            let chatListener;
+            // Buscar el empleado de la orden
+            const orderDoc = await getDoc(doc(db, 'orders', orderId));
+            let receiverId = null;
+            let receiverRole = 'empleado';
+            if (orderDoc.exists() && orderDoc.data().empleadoId) {
+                receiverId = orderDoc.data().empleadoId;
+                receiverRole = 'empleado';
+            }
+            // Cargar mensajes
+            const q = query(collection(db, 'chats'), where('orderId', '==', orderId), orderBy('timestamp', 'asc'));
+            chatListener = onSnapshot(q, snapshot => {
+                chatContainer.innerHTML = '';
+                if (snapshot.empty) {
+                    chatContainer.innerHTML = '<div class="text-center text-cyan-500 py-10"><i class="fas fa-comment-slash text-2xl mb-2"></i><p>No hay mensajes aún. Inicia la conversación.</p></div>';
+                    return;
+                }
+                snapshot.forEach(doc => {
+                    const msg = doc.data();
+                    const msgDiv = document.createElement('div');
+                    msgDiv.className = `mb-2 ${msg.senderRole === 'cliente' ? 'text-right' : 'text-left'}`;
+                    msgDiv.innerHTML = `<span class='inline-block px-3 py-2 rounded-lg ${msg.senderRole === 'cliente' ? 'bg-cyan-700 text-white' : 'bg-green-600 text-white'} max-w-xs'>${msg.text}</span><br><span class='text-xs text-gray-400'>${msg.senderName || msg.senderRole}</span>`;
+                    chatContainer.appendChild(msgDiv);
+                });
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            });
+            // Enviar mensaje
+            document.getElementById('send-message').onclick = async function() {
+                const text = chatInput.value.trim();
+                if (!text) return;
+                const user = auth.currentUser;
+                const userDoc = await getDoc(doc(db, 'users', user.uid));
+                const senderName = userDoc.exists() ? userDoc.data().nombre : 'Cliente';
+                await addDoc(collection(db, 'chats'), {
+                    orderId,
+                    senderId: user.uid,
+                    senderRole: 'cliente',
+                    senderName,
+                    receiverId,
+                    receiverRole,
+                    text,
+                    timestamp: new Date()
+                });
+                chatInput.value = '';
+            };
+        }
+
+        // --- ESTADO DE CONEXIÓN Y FECHA/HORA (como empleado) ---
+        function updateOnlineStatusCliente() {
+            const statusEl = document.getElementById('online-status');
+            if (navigator.onLine) {
+                statusEl.innerHTML = '<i class="fas fa-circle-notch fa-spin mr-2"></i> Conectado';
+                statusEl.className = 'flex items-center text-green-400 font-bold';
+            } else {
+                statusEl.innerHTML = '<i class="fas fa-exclamation-circle mr-2"></i> Desconectado';
+                statusEl.className = 'flex items-center text-red-400 font-bold';
+            }
+        }
+        window.addEventListener('online', updateOnlineStatusCliente);
+        window.addEventListener('offline', updateOnlineStatusCliente);
+        function updateClockCliente() {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('es-ES');
+            const dateStr = now.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            document.getElementById('current-time').textContent = `${timeStr} - ${dateStr}`;
+        }
+        setInterval(updateClockCliente, 1000);
+        updateClockCliente();
 
         // Funciones de Firebase
         async function fetchServices() {
@@ -719,23 +1009,24 @@
 
                 for (const docSnap of snapshot.docs) {
                     const order = docSnap.data();
-                    let serviceName = 'Servicio Desconocido';
-                    let servicePrice = order.monto || 0; // Usar el monto de la orden si existe
-                    
-                    // Obtener información del servicio
-                    if (order.serviceId) {
+                    // --- REVIERTE: Muestra todas las órdenes, aunque no tengan fecha ---
+
+                    let serviceName = 'Servicio eliminado o no disponible';
+                    let servicePrice = order.monto || 0;
+                    // Buscar el nombre del servicio usando el campo correcto o alternativo
+                    const realServiceId = order.serviceId || order.servicioId;
+                    if (realServiceId) {
                         try {
-                            const serviceDoc = await getDoc(doc(db, 'services', order.serviceId));
+                            const serviceDoc = await getDoc(doc(db, 'services', realServiceId));
                             if (serviceDoc.exists()) {
                                 const serviceData = serviceDoc.data();
-                                serviceName = serviceData.nombre;
-                                // Si no hay monto en la orden, usar el precio base del servicio
+                                serviceName = serviceData.nombre || 'Servicio sin nombre';
                                 if (!order.monto) {
                                     servicePrice = serviceData.precioBase;
                                 }
                             }
                         } catch (error) {
-                            console.error("Error al obtener servicio:", error);
+                            console.error('Error al obtener servicio:', error);
                         }
                     }
 
@@ -787,7 +1078,15 @@
                         `;
                     }
                     
-                    const orderDate = order.fecha.toDate();
+                    // FECHA: Soporte para Timestamp y string
+                    let orderDate = null;
+                    if (order.fecha && typeof order.fecha.toDate === 'function') {
+                        orderDate = order.fecha.toDate();
+                    } else if (order.fecha && typeof order.fecha === 'string') {
+                        orderDate = new Date(order.fecha);
+                    } else {
+                        orderDate = new Date();
+                    }
                     const formattedDate = orderDate.toLocaleDateString('es-ES', {
                         day: '2-digit',
                         month: '2-digit',
@@ -814,7 +1113,14 @@
                     // Timeline information
                     let timelineHTML = '';
                     if (order.fecha) {
-                        const fechaCreacion = order.fecha.toDate();
+                        let fechaCreacion = null;
+                        if (typeof order.fecha.toDate === 'function') {
+                            fechaCreacion = order.fecha.toDate();
+                        } else if (typeof order.fecha === 'string') {
+                            fechaCreacion = new Date(order.fecha);
+                        } else {
+                            fechaCreacion = new Date();
+                        }
                         timelineHTML += `
                             <div class="timeline-item">
                                 <span class="timeline-date">${fechaCreacion.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })} ${fechaCreacion.toLocaleTimeString('es-ES', {hour: '2-digit', minute:'2-digit'})}</span>
@@ -822,9 +1128,15 @@
                             </div>
                         `;
                     }
-                    
                     if (order.fechaAceptacion) {
-                        const aceptacionDate = order.fechaAceptacion.toDate();
+                        let aceptacionDate = null;
+                        if (typeof order.fechaAceptacion.toDate === 'function') {
+                            aceptacionDate = order.fechaAceptacion.toDate();
+                        } else if (typeof order.fechaAceptacion === 'string') {
+                            aceptacionDate = new Date(order.fechaAceptacion);
+                        } else {
+                            aceptacionDate = new Date();
+                        }
                         timelineHTML += `
                             <div class="timeline-item">
                                 <span class="timeline-date">${aceptacionDate.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })} ${aceptacionDate.toLocaleTimeString('es-ES', {hour: '2-digit', minute:'2-digit'})}</span>
@@ -832,9 +1144,15 @@
                             </div>
                         `;
                     }
-                    
                     if (order.fechaFinalizacion) {
-                        const finalizacionDate = order.fechaFinalizacion.toDate();
+                        let finalizacionDate = null;
+                        if (typeof order.fechaFinalizacion.toDate === 'function') {
+                            finalizacionDate = order.fechaFinalizacion.toDate();
+                        } else if (typeof order.fechaFinalizacion === 'string') {
+                            finalizacionDate = new Date(order.fechaFinalizacion);
+                        } else {
+                            finalizacionDate = new Date();
+                        }
                         timelineHTML += `
                             <div class="timeline-item">
                                 <span class="timeline-date">${finalizacionDate.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })} ${finalizacionDate.toLocaleTimeString('es-ES', {hour: '2-digit', minute:'2-digit'})}</span>
